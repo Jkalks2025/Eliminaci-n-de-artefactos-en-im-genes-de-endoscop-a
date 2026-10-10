@@ -5,6 +5,7 @@ sus pesos no se actualizan, pero el gradiente atraviesa sus activaciones y llega
 al generador de Endo-STTN. La idea es que el frame reconstruido produzca la misma
 disparidad que el frame limpio original (ground truth del entrenamiento).
 """
+import os
 import sys
 import types
 import importlib.util
@@ -41,9 +42,19 @@ def load_monoiit(monovit_path, weights_dir, device):
 
     _load("hr_layers", "hr_layers.py")
     DepthDecoderHR = _load("hr_decoder", "hr_decoder.py").DepthDecoder
-    mpvit_small = _load("mpvit", "mpvit.py").mpvit_small
+    mpvit = _load("mpvit", "mpvit.py")
 
-    enc = mpvit_small()
+    # mpvit_small() lee './ckpt/mpvit_small.pth' relativo al cwd: se construye desde MonoViT
+    cwd = os.getcwd()
+    os.chdir(monovit_path)
+    try:
+        enc = mpvit.mpvit_small()
+    except FileNotFoundError:
+        # Sin el checkpoint ImageNet: misma arquitectura; encoder.pth sobrescribe los pesos igual
+        enc = mpvit.MPViT(num_stages=4, num_path=[2, 3, 3, 3], num_layers=[1, 3, 6, 3],
+                          embed_dims=[64, 128, 216, 288], mlp_ratios=[4, 4, 4, 4], num_heads=[8, 8, 8, 8])
+    finally:
+        os.chdir(cwd)
     enc.num_ch_enc = [64, 128, 216, 288, 288]
     enc_sd = torch.load(weights_dir / "encoder.pth", map_location=device)
     in_h, in_w = enc_sd.get("height", 192), enc_sd.get("width", 640)
@@ -57,28 +68,29 @@ def load_monoiit(monovit_path, weights_dir, device):
     return enc.to(device), dec.to(device), (in_h, in_w)
 
 
-def load_monodepth2(networks_root, weights_dir, device, num_layers=18):
-    """Carga un modelo estilo Monodepth2 (ResnetEncoder + DepthDecoder), p. ej. Endo-Depth-and-Motion.
+def load_monodepth2(edam_path, weights_dir, device, num_layers=18):
+    """Carga Monodepth2 con el código de Endo-Depth-and-Motion (igual que Avance 3/5).
 
-    `networks_root` es la carpeta que contiene `networks/` y `layers.py`.
-    Devuelve (encoder, decoder, (alto, ancho) de entrada).
+    El código está en `<edam_path>/apps/depth_estimate/` (resnet_encoder.py,
+    depth_decoder.py, layers.py). Devuelve (encoder, decoder, (alto, ancho) de entrada).
     """
+    code_dir = str(Path(edam_path) / "apps" / "depth_estimate")
     weights_dir = Path(weights_dir)
-    for k in list(sys.modules):
-        if k in ("networks", "layers") or k.startswith("networks."):
-            del sys.modules[k]
-    sys.path.insert(0, str(networks_root))
+    for k in ("resnet_encoder", "depth_decoder", "layers"):
+        sys.modules.pop(k, None)
+    sys.path.insert(0, code_dir)
     try:
-        import networks
+        from resnet_encoder import ResnetEncoder
+        from depth_decoder import DepthDecoder
     finally:
-        sys.path.remove(str(networks_root))
+        sys.path.remove(code_dir)
 
-    enc = networks.ResnetEncoder(num_layers, False)
+    enc = ResnetEncoder(num_layers, False)
     enc_sd = torch.load(weights_dir / "encoder.pth", map_location=device)
-    in_h, in_w = enc_sd.get("height", 256), enc_sd.get("width", 320)
+    in_h, in_w = enc_sd.get("height", 192), enc_sd.get("width", 640)
     enc.load_state_dict({k: v for k, v in enc_sd.items() if k in enc.state_dict()})
 
-    dec = networks.DepthDecoder(num_ch_enc=enc.num_ch_enc, scales=range(4))
+    dec = DepthDecoder(num_ch_enc=enc.num_ch_enc, scales=range(4))
     dec.load_state_dict(torch.load(weights_dir / "depth.pth", map_location=device))
 
     return enc.to(device), dec.to(device), (in_h, in_w)
@@ -128,7 +140,7 @@ class DepthLoss(nn.Module):
         if model == "monoiit":
             enc, dec, in_size = load_monoiit(cfg["monovit_path"], cfg["weights_dir"], device)
         elif model == "monodepth2":
-            enc, dec, in_size = load_monodepth2(cfg["networks_root"], cfg["weights_dir"], device,
+            enc, dec, in_size = load_monodepth2(cfg["edam_path"], cfg["weights_dir"], device,
                                                 num_layers=cfg.get("num_layers", 18))
         else:
             raise ValueError(f"depth.model desconocido: {model} (usa 'monoiit' o 'monodepth2')")
