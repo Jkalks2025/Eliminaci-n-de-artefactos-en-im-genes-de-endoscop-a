@@ -5,11 +5,11 @@ estructura del repositorio original, para copiar sus archivos encima.
 
 | Carpeta | Qué contiene | Se copia sobre |
 |---|---|---|
-| `endo_sttn/` | Endo-STTN entrenado con pérdida de profundidad (MonoIIT o Monodepth2 congelado) | tu clon de [Endo-STTN](https://github.com/endomapper/Endo-STTN) (`E:/Endo-STTN`) |
+| `Endoscopy_Equipo19/` | Endo-STTN entrenado con pérdida de profundidad (MonoIIT o Monodepth2 congelado) | tu clon de [Endo-STTN](https://github.com/endomapper/Endo-STTN) (`E:/Endo-STTN`) |
 
 ---
 
-## `endo_sttn/` — Endo-STTN guiado por profundidad
+## `Endoscopy_Equipo19/` — Endo-STTN guiado por profundidad
 
 Durante el entrenamiento, el frame reconstruido por Endo-STTN pasa por un modelo de
 profundidad **congelado**. La pérdida obliga a que su disparidad coincida con la del
@@ -41,7 +41,7 @@ gen_loss = gan + hole + valid + depth_weight · L_depth   ──► backward ─
    git clone https://github.com/endomapper/Endo-STTN.git
    copy E:\Endo-STTN\core\trainer.py E:\Endo-STTN\core\trainer_original.py
    ```
-2. **Copia los archivos de `codigo_local/endo_sttn/` sobre `E:\Endo-STTN\`**, respetando
+2. **Copia los archivos de `codigo_local/Endoscopy_Equipo19/` sobre `E:\Endo-STTN\`**, respetando
    las carpetas (`core/`, `configs/`).
 3. **Entorno.** Además de `requirements.txt` de Endo-STTN y PyTorch con CUDA:
    - Para MonoIIT: `pip install timm einops matplotlib` y `mmcv`/`mmseg`, que importa `MonoViT/networks/mpvit.py`.
