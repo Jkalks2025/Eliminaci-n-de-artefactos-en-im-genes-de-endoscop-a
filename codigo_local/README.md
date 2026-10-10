@@ -62,6 +62,38 @@ gen_loss = gan + hole + valid + depth_weight · L_depth   ──► backward ─
    ```
    Monitorea con `tensorboard --logdir release_model` (`loss/depth_loss`).
 
+### Prueba rápida con 1 solo video
+
+Config: `configs/EndoSTTN_depth_prueba.json` (2000 iteraciones, checkpoint cada 500,
+warm-up de 200, dataset `prueba_1video`).
+
+1. **Dataset de un video**: mismo formato que el oficial, con un solo video.
+   ```
+   datasets/prueba_1video/
+   ├── JPEGImages/video01.zip    (00000.jpg, 00001.jpg, ...)
+   ├── Annotations/video01.zip   (máscaras con los mismos nombres)
+   └── train.json                {"video01": <número de frames>}
+   ```
+2. **Humo (segundos)**: `-e` fuerza 5 iteraciones; solo comprueba que todo corre.
+   ```powershell
+   python train.py --model sttn --config configs/EndoSTTN_depth_prueba.json -e
+   ```
+   Borra después `release_model/sttn_EndoSTTN_depth_prueba/` para que el paso 3 no lo retome.
+3. **Entrenamiento corto** desde el preentrenado:
+   ```powershell
+   python train.py --model sttn --config configs/EndoSTTN_depth_prueba.json -c release_model/pretrained_model/ -cn 9
+   ```
+   Si la barra de progreso no arranca en 0 (el preentrenado trae su contador de
+   iteraciones en `opt_00009.pth`), el entrenamiento se detiene en cuanto supera
+   `iterations`: súbelo a *iteración inicial + 2000*.
+4. **Inferencia** con el checkpoint nuevo (frames y máscaras en carpetas, sin `--zip`):
+   ```powershell
+   python test.py --gpu 0 --overlaid --output results/prueba/ --frame <carpeta_frames_video01> --mask <carpeta_mascaras_video01> -c release_model/sttn_EndoSTTN_depth_prueba/ -cn <número en latest.ckpt>
+   ```
+5. **Comparación**: copia el config como `EndoSTTN_prueba_sin_depth.json` con
+   `"depth_weight": 0` y repite 3–4. La carpeta de checkpoints sale del nombre del
+   config, así que no se mezclan.
+
 ### Usar Monodepth2 (Endo-Depth-and-Motion) en vez de MonoIIT
 
 Es más ligero (ResNet-18) y útil si la GPU de la laptop no alcanza. Cambia el bloque `depth`:
