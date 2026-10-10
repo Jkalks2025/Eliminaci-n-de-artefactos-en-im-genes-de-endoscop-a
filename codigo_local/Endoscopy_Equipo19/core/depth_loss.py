@@ -84,10 +84,33 @@ def load_monodepth2(edam_path, weights_dir, device, num_layers=18):
         from depth_decoder import DepthDecoder
     finally:
         sys.path.remove(code_dir)
+    return _load_resnet_depth(ResnetEncoder, DepthDecoder, weights_dir, device, num_layers, (192, 640))
 
+
+def load_afsfmlearner(afsfm_path, weights_dir, device, num_layers=18):
+    """Carga AF-SfMLearner con su propio código (paquete `networks/` + `layers.py`).
+
+    Su ResnetEncoder NO normaliza la entrada (la línea (x-0.45)/0.225 está comentada),
+    que es como se entrenaron sus pesos. Devuelve (encoder, decoder, (alto, ancho)).
+    """
+    root = str(Path(afsfm_path))
+    for k in list(sys.modules):
+        if k in ("networks", "layers") or k.startswith("networks."):
+            del sys.modules[k]
+    sys.path.insert(0, root)
+    try:
+        import networks
+    finally:
+        sys.path.remove(root)
+    return _load_resnet_depth(networks.ResnetEncoder, networks.DepthDecoder,
+                              Path(weights_dir), device, num_layers, (256, 320))
+
+
+def _load_resnet_depth(ResnetEncoder, DepthDecoder, weights_dir, device, num_layers, default_size):
+    """ResnetEncoder + DepthDecoder estilo Monodepth2 desde encoder.pth / depth.pth."""
     enc = ResnetEncoder(num_layers, False)
     enc_sd = torch.load(weights_dir / "encoder.pth", map_location=device)
-    in_h, in_w = enc_sd.get("height", 192), enc_sd.get("width", 640)
+    in_h, in_w = enc_sd.get("height", default_size[0]), enc_sd.get("width", default_size[1])
     enc.load_state_dict({k: v for k, v in enc_sd.items() if k in enc.state_dict()})
 
     dec = DepthDecoder(num_ch_enc=enc.num_ch_enc, scales=range(4))
@@ -142,8 +165,12 @@ class DepthLoss(nn.Module):
         elif model == "monodepth2":
             enc, dec, in_size = load_monodepth2(cfg["edam_path"], cfg["weights_dir"], device,
                                                 num_layers=cfg.get("num_layers", 18))
+        elif model == "afsfmlearner":
+            enc, dec, in_size = load_afsfmlearner(cfg["afsfm_path"], cfg["weights_dir"], device,
+                                                  num_layers=cfg.get("num_layers", 18))
         else:
-            raise ValueError(f"depth.model desconocido: {model} (usa 'monoiit' o 'monodepth2')")
+            raise ValueError(f"depth.model desconocido: {model} "
+                             "(usa 'monoiit', 'monodepth2' o 'afsfmlearner')")
         return cls(enc, dec, in_size,
                    mask_weight=cfg.get("mask_weight", 4.0),
                    max_frames=cfg.get("max_frames", 0))

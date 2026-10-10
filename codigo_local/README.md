@@ -109,11 +109,30 @@ Es más ligero (ResNet-18) y útil si la GPU de la laptop no alcanza. Cambia el 
 
 El código se toma de `Endo-Depth-and-Motion/apps/depth_estimate/`, igual que en los Avances 3 y 5.
 
+### Usar AF-SfMLearner (pesos públicos entrenados en SCARED)
+
+No necesita acceso al Drive del proyecto ni `mmcv`/`mmseg`. Config lista:
+`configs/EndoSTTN_depth_prueba_afsfm.json`.
+
+```powershell
+git clone https://github.com/ShuweiShao/AF-SfMLearner D:\Git\AF-SfMLearner
+```
+Descarga los pesos *End-to-end* desde la sección **Model zoo** del README de
+AF-SfMLearner y descomprímelos en `D:\Git\pesos\Model_trained_end_to_end\`
+(deben quedar `encoder.pth` y `depth.pth`).
+
+```powershell
+python check_depth_weights.py configs/EndoSTTN_depth_prueba_afsfm.json
+```
+
+Su encoder no normaliza la imagen (así se entrenó); el cargador usa su propio código
+para respetarlo.
+
 ### Parámetros del bloque `depth`
 
 | Parámetro | Efecto |
 |---|---|
-| `model` | `monoiit` (por defecto) o `monodepth2`. |
+| `model` | `monoiit` (por defecto), `monodepth2` o `afsfmlearner`. |
 | `warmup_iters` | Iteraciones iniciales sin pérdida de profundidad. |
 | `mask_weight` | Peso extra dentro de la máscara (peso total = 1 + `mask_weight`). |
 | `max_frames` | Máximo de frames por paso que pasan por el modelo de profundidad. `0` = todos. |
