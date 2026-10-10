@@ -57,6 +57,33 @@ def load_monoiit(monovit_path, weights_dir, device):
     return enc.to(device), dec.to(device), (in_h, in_w)
 
 
+def load_monodepth2(networks_root, weights_dir, device, num_layers=18):
+    """Carga un modelo estilo Monodepth2 (ResnetEncoder + DepthDecoder), p. ej. Endo-Depth-and-Motion.
+
+    `networks_root` es la carpeta que contiene `networks/` y `layers.py`.
+    Devuelve (encoder, decoder, (alto, ancho) de entrada).
+    """
+    weights_dir = Path(weights_dir)
+    for k in list(sys.modules):
+        if k in ("networks", "layers") or k.startswith("networks."):
+            del sys.modules[k]
+    sys.path.insert(0, str(networks_root))
+    try:
+        import networks
+    finally:
+        sys.path.remove(str(networks_root))
+
+    enc = networks.ResnetEncoder(num_layers, False)
+    enc_sd = torch.load(weights_dir / "encoder.pth", map_location=device)
+    in_h, in_w = enc_sd.get("height", 256), enc_sd.get("width", 320)
+    enc.load_state_dict({k: v for k, v in enc_sd.items() if k in enc.state_dict()})
+
+    dec = networks.DepthDecoder(num_ch_enc=enc.num_ch_enc, scales=range(4))
+    dec.load_state_dict(torch.load(weights_dir / "depth.pth", map_location=device))
+
+    return enc.to(device), dec.to(device), (in_h, in_w)
+
+
 def scale_invariant_l1(pred, target, weight=None, eps=1e-6):
     """L1 tras normalizar cada mapa por mediana y desviación absoluta media.
 
@@ -97,7 +124,14 @@ class DepthLoss(nn.Module):
 
     @classmethod
     def from_config(cls, cfg, device):
-        enc, dec, in_size = load_monoiit(cfg["monovit_path"], cfg["weights_dir"], device)
+        model = cfg.get("model", "monoiit")
+        if model == "monoiit":
+            enc, dec, in_size = load_monoiit(cfg["monovit_path"], cfg["weights_dir"], device)
+        elif model == "monodepth2":
+            enc, dec, in_size = load_monodepth2(cfg["networks_root"], cfg["weights_dir"], device,
+                                                num_layers=cfg.get("num_layers", 18))
+        else:
+            raise ValueError(f"depth.model desconocido: {model} (usa 'monoiit' o 'monodepth2')")
         return cls(enc, dec, in_size,
                    mask_weight=cfg.get("mask_weight", 4.0),
                    max_frames=cfg.get("max_frames", 0))
@@ -107,7 +141,7 @@ class DepthLoss(nn.Module):
         return super().train(False)
 
     def _disp(self, x):
-        # [-1,1] -> [0,1] (MonoIIT usa ToTensor sin normalización mean/std)
+        # [-1,1] -> [0,1] (MonoIIT y Monodepth2 reciben ToTensor; normalizan dentro del encoder si hace falta)
         x = (x + 1) / 2
         x = F.interpolate(x, size=self.in_size, mode="bilinear", align_corners=False)
         return self.decoder(self.encoder(x))[("disp", 0)]
