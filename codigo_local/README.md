@@ -30,6 +30,7 @@ gen_loss = gan + hole + valid + depth_weight · L_depth   ──► backward ─
 | `core/trainer.py` | `trainer.py` oficial + pérdida de profundidad (las líneas marcadas `depth`). |
 | `train.py` | Sin cambios respecto al oficial (referencia). |
 | `configs/EndoSTTN_depth_local.json` | Config del repo oficial ajustada a una laptop + bloque `depth`. |
+| `prepare_one_video.py` | Crea un dataset de un solo video (carpeta de frames o `.mp4`) para pruebas. |
 | `check_depth_weights.py` | Verifica que tus pesos reales cargan y que el gradiente pasa. |
 | `test_depth_loss.py` | Prueba sin pesos: el gradiente llega a `netG` y el modelo de profundidad no cambia. |
 
@@ -67,7 +68,11 @@ gen_loss = gan + hole + valid + depth_weight · L_depth   ──► backward ─
 Config: `configs/EndoSTTN_depth_prueba.json` (2000 iteraciones, checkpoint cada 500,
 warm-up de 200, dataset `prueba_1video`).
 
-1. **Dataset de un video**: mismo formato que el oficial, con un solo video.
+1. **Dataset de un video**: genéralo con `prepare_one_video.py` (carpeta de frames o `.mp4`):
+   ```powershell
+   python prepare_one_video.py --input "<carpeta_de_la_secuencia>" --pattern "*color*.png"
+   ```
+   Crea `datasets/prueba_1video/` con este formato (máscaras de brillo por percentil 97):
    ```
    datasets/prueba_1video/
    ├── JPEGImages/video01.zip    (00000.jpg, 00001.jpg, ...)
