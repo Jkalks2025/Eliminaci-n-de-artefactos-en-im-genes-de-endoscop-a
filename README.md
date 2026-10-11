@@ -1,8 +1,8 @@
 # Eliminación de artefactos en imágenes de endoscopía · Equipo 19
 
-Proyecto para eliminar reflejos especulares en video endoscópico sin deformar la geometría 3D del
-tejido. Combina **Endo-STTN** (inpainting temporal) con un **estimador de profundidad monocular**
-(AF-SfMLearner) y se evalúa en **C3VDv2** (colonoscopía 3D).
+Proyecto para mejorar la estimación de profundidad en video endoscópico eliminando los reflejos especulares.
+**Endo-STTN** (inpainting temporal) limpia los frames y con ellos se ajusta un **estimador de profundidad
+monocular** (AF-SfMLearner), usando la profundidad real de **C3VDv2** (colonoscopía 3D).
 
 **Integrantes (Equipo 19):**
 - Javier Emmanuel García Escobedo
@@ -14,15 +14,14 @@ tejido. Combina **Endo-STTN** (inpainting temporal) con un **estimador de profun
 | Avance | Tema | Estado | Documento |
 |---|---|---|---|
 | 1 | *(por completar)* | En preparación | [`Avance1/`](Avance1/) |
-| 2 | Endo-STTN guiado por un estimador de profundidad | Método implementado y probado; resultados pendientes | [`Avance2_DeepEstimator_EndoSTTN/README.md`](Avance2_DeepEstimator_EndoSTTN/README.md) |
+| 2 | Endo-STTN limpia los frames → ajuste fino del estimador de profundidad | Implementado y probado con datos sintéticos; resultados con C3VDv2 pendientes | [`Avance2_DeepEstimator_EndoSTTN/README.md`](Avance2_DeepEstimator_EndoSTTN/README.md) |
 
 Cada avance tiene su propio documento con objetivo, marco teórico, metodología, resultados y referencias.
-El código que comparten está en [`Endo-STTN/`](Endo-STTN/).
 
 ## Cómo correrlo
 
-Requiere Python 3.8+ y, para entrenar, una GPU NVIDIA con CUDA. También se puede usar
-Google Colab: [`Equipo19_EndoSTTN_Profundidad_colab.ipynb`](Avance2_DeepEstimator_EndoSTTN/notebooks/Equipo19_EndoSTTN_Profundidad_colab.ipynb).
+Requiere Python 3.8+. Para limpiar y entrenar conviene una GPU NVIDIA con CUDA; también se puede usar Google Colab:
+[`Equipo19_Avance2_colab.ipynb`](Avance2_DeepEstimator_EndoSTTN/notebooks/Equipo19_Avance2_colab.ipynb).
 
 **1. Clonar e instalar**
 ```bash
@@ -39,57 +38,56 @@ python preparar_entorno.py
 ```
 Al final indica si falta algo y cómo conseguirlo.
 
-**3. Verificar** (desde `Endo-STTN/`)
+**3. Prueba rápida** (sin datos ni pesos: comprueba que los 4 pasos funcionan, con datos sintéticos)
 ```bash
-cd Endo-STTN
-python test_depth_loss.py       # lógica de la pérdida; no necesita pesos, datos ni GPU
-python check_depth_weights.py   # pesos reales: carga el modelo y comprueba que pasa el gradiente
+python codigo/prueba_rapida.py
 ```
 
-**4. Datos.** Descarga los videos de C3VDv2 (ZIPs con carpeta `rgb/`) en `Endo-STTN/datasets/raw/` y conviértelos:
+**4. Datos.** Copia los ZIPs de C3VDv2 (cada uno con `rgb/` y `depth/`) en `datos/raw/` y revisa el formato:
 ```bash
-python preparar_todos_c3vd.py
+python codigo/probar_formato.py
 ```
-Crea `datasets/C3VD/` con `train.json` (todos menos `c2_descending_t4_v3`, reservado para evaluar)
-y `test.json` (todos). Para una prueba rápida con un solo video, deja en `train.json` solo
-`{"c2_descending_t4_v2": <frames>}`.
+Debe mostrar la profundidad en milímetros razonables (unos 5–100 mm). Si no, ajusta `PROF_MAX_MM` en `codigo/c3vd.py`.
 
-**5. Entrenar** (con profundidad y, para comparar, sin ella)
+**5. Correr los cuatro pasos**
 ```bash
-python train.py --model sttn --config configs/EndoSTTN_depth_prueba_afsfm.json -e    # prueba: 5 iteraciones
-python train.py --model sttn --config configs/EndoSTTN_depth_prueba_afsfm.json -c release_model/pretrained_model/ -cn 9
-python train.py --model sttn --config configs/EndoSTTN_prueba_sin_depth.json  -c release_model/pretrained_model/ -cn 9
+python codigo/preparar_datos.py                          # frames + profundidad real + reflejos, división por video
+python codigo/limpiar_endosttn.py                        # Endo-STTN congelado borra los reflejos
+python codigo/ajustar_profundidad.py --entrada rgb         # modelo C (frames originales)
+python codigo/ajustar_profundidad.py --entrada rgb_limpio  # modelo D (frames limpios)
+python codigo/evaluar_profundidad.py                     # A, B, C, D contra la profundidad real
 ```
-Borra `release_model/sttn_EndoSTTN_depth_prueba_afsfm/` después de la prueba de 5 iteraciones.
-
-**6. Evaluar**: notebook [`Equipo19_EndoSTTN_Profundidad_local.ipynb`](Avance2_DeepEstimator_EndoSTTN/notebooks/Equipo19_EndoSTTN_Profundidad_local.ipynb).
+Los resultados quedan en `Avance2_DeepEstimator_EndoSTTN/resultados/`. El notebook
+[`Equipo19_Avance2_local.ipynb`](Avance2_DeepEstimator_EndoSTTN/notebooks/Equipo19_Avance2_local.ipynb) hace lo mismo con figuras.
 
 ## Qué hay en el repositorio
 
 ```
 README.md                         este archivo (portada)
 requirements.txt                  dependencias de Python
-preparar_entorno.py               descarga AF-SfMLearner, pesos y preentrenado
+preparar_entorno.py               descarga AF-SfMLearner, pesos y preentrenado de Endo-STTN
+codigo/                           código del Equipo 19
+├── c3vd.py                       lectura de C3VDv2 (rgb + profundidad real), máscaras y división por video
+├── preparar_datos.py             paso 1
+├── limpiar_endosttn.py           paso 2: Endo-STTN congelado
+├── modelo_profundidad.py         AF-SfMLearner, pérdida scale-invariant y métricas
+├── ajustar_profundidad.py        paso 3: ajuste fino (modelos C y D)
+├── evaluar_profundidad.py        paso 4: evaluación A-D y Wilcoxon
+├── probar_formato.py             revisa el formato de un ZIP de C3VDv2
+└── prueba_rapida.py              prueba de punta a punta con datos sintéticos
 Avance1/                          (por completar)
 Avance2_DeepEstimator_EndoSTTN/   documento del Avance 2, figuras, notebooks y resultados
-Endo-STTN/                        Endo-STTN original + cambios del Equipo 19
-├── core/depth_loss.py            ★ pérdida de profundidad (nuevo)
-├── core/trainer.py               ★ trainer original + pérdida de profundidad (≈20 líneas)
-├── configs/EndoSTTN_depth_prueba_afsfm.json   ★ con profundidad
-├── configs/EndoSTTN_prueba_sin_depth.json     ★ sin profundidad (comparación)
-├── preparar_c3vd.py, preparar_todos_c3vd.py   ★ conversión de C3VD
-└── test_depth_loss.py, check_depth_weights.py ★ verificación
-externos/                         (no está en git) AF-SfMLearner y pesos
+Endo-STTN/                        Endo-STTN original, sin modificaciones (se usa congelado)
+datos/raw/                        aquí van los ZIPs de C3VDv2 (no se suben a git)
+externos/, modelos/, datos/c3vd/  (no están en git) AF-SfMLearner, pesos, estimadores ajustados y datos preparados
 ```
-★ = archivos del Equipo 19. El resto de `Endo-STTN/` es el código original sin cambios: el
-primer commit lo agrega tal cual, así que `git log -p -- Endo-STTN` muestra solo nuestras modificaciones.
 
 ## Créditos y licencias
 
 - **Endo-STTN** — R. Daher, F. Vasconcelos, D. Stoyanov, *A Temporal Learning Approach to Inpainting
   Endoscopic Specularities and Its Effect on Image Correspondence*, Medical Image Analysis, 2023.
   [github.com/endomapper/Endo-STTN](https://github.com/endomapper/Endo-STTN) (commit `9419a6c`), licencia MIT
-  (`Endo-STTN/LICENCE`). Basado en STTN (Zeng et al., ECCV 2020).
+  (`Endo-STTN/LICENCE`), incluido sin modificaciones. Basado en STTN (Zeng et al., ECCV 2020).
 - **AF-SfMLearner** — S. Shao et al., Medical Image Analysis, 2022.
   [github.com/ShuweiShao/AF-SfMLearner](https://github.com/ShuweiShao/AF-SfMLearner) (commit `53d01a4`), licencia MIT;
   partes de su red de profundidad provienen de Monodepth2 (Niantic, licencia de uso no comercial).
@@ -101,8 +99,8 @@ primer commit lo agrega tal cual, así que `git log -p -- Endo-STTN` muestra sol
 
 Este proyecto se desarrolló con apoyo de **Claude** (Anthropic), un asistente de inteligencia
 artificial, en las siguientes tareas:
-- escritura y depuración de código (pérdida de profundidad, integración en Endo-STTN, scripts de
-  preparación de datos y notebooks);
+- escritura y depuración de código (preparación de C3VDv2, limpieza con Endo-STTN, ajuste fino y
+  evaluación del estimador de profundidad, notebooks);
 - redacción y organización de la documentación, incluido el marco teórico;
 - elaboración de diagramas.
 

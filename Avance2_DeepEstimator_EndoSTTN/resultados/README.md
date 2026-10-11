@@ -1,10 +1,10 @@
 # Resultados del Avance 2
 
-Guarda aquí la salida de la sección 7 del notebook cuando terminen los entrenamientos:
+`python codigo/evaluar_profundidad.py` escribe aquí:
 
-- `tabla_evaluacion.csv`: PSNR y error de profundidad dentro de la máscara, por modelo
-  (preentrenado, con profundidad, sin profundidad).
-- `curvas_perdida.png`: curvas de la sección 6.
-- `comparacion_visual.png`: figura de la sección 7.
+- `evaluacion_resumen.md`: tablas de métricas por región (imagen, reflejos, anillo) y pruebas de Wilcoxon.
+- `evaluacion_resumen.csv`: las mismas medias en CSV.
+- `evaluacion_por_frame.csv`: métricas de cada frame de prueba, por modelo y región.
 
-Anota también el video de entrenamiento, el de evaluación, las iteraciones y el `depth_weight` usados.
+Los historiales de entrenamiento (AbsRel de validación por época) quedan en `modelos/<entrada>_s<semilla>/historial.json`.
+Al terminar, copia la tabla de AbsRel a la sección 5 del [documento del avance](../README.md) y anota la semilla usada.
