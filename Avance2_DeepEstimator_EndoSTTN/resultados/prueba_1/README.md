@@ -13,7 +13,7 @@
 
 | | |
 |---|---|
-| Fecha / entorno | 11 de octubre de 2026 · Google Colab con GPU · notebook `Equipo19_Avance2_colab.ipynb` |
+| Fecha / entorno | 11 de octubre de 2026 · Google Colab con GPU · [notebook ejecutado](Equipo19_Avance2_colab_ejecutado.ipynb) |
 | Videos de entrenamiento | `c2_descending_t4_v1`, `c2_descending_t4_v2`, `c2_rectum_t1_v1` |
 | Video de validación | `c2_descending_t3_v1` (elige la mejor época) |
 | Video de prueba | `c2_descending_t4_v3` (26 frames evaluados) |
@@ -93,6 +93,9 @@ Tabla completa (A–D, todas las regiones): [`evaluacion_resumen.md`](evaluacion
 
 | Archivo | Contenido |
 |---|---|
+| [`Equipo19_Avance2_colab_ejecutado.ipynb`](Equipo19_Avance2_colab_ejecutado.ipynb) | Notebook de Colab con todas las celdas ejecutadas: salidas de cada paso y figuras (frames, limpieza, entrenamiento, profundidad A–D) |
 | [`evaluacion_resumen.md`](evaluacion_resumen.md) | Tablas completas A–D por región y pruebas de Wilcoxon (salida de `codigo/evaluar_profundidad.py`) |
+| [`evaluacion_resumen.csv`](evaluacion_resumen.csv) | Medias de las métricas por región y modelo (A–D) |
+| [`evaluacion_por_frame.csv`](evaluacion_por_frame.csv) | Métricas de cada uno de los 26 frames de prueba, por modelo y región (base de las pruebas de Wilcoxon) |
 | [`historial_C_rgb.json`](historial_C_rgb.json), [`historial_D_rgb_limpio.json`](historial_D_rgb_limpio.json) | AbsRel de validación por época y configuración de cada ajuste fino |
 | `absrel_por_region.png`, `curvas_validacion.png` | Figuras de este reporte, generadas a partir de los archivos anteriores |
