@@ -9,6 +9,9 @@ from preparar_c3vd import preparar, RAW, RAIZ, VIDEOS_EVAL
 
 zips = sorted(glob.glob(os.path.join(RAW, "*.zip")))
 print(f"Zips encontrados en {RAW}: {len(zips)}\n")
+if not zips:
+    raise SystemExit(f"No hay zips de C3VD en {os.path.abspath(RAW)}. Descárgalos ahí y vuelve a correr.")
+os.makedirs(RAIZ, exist_ok=True)
 
 lista = {}
 for k, origen in enumerate(zips, 1):
