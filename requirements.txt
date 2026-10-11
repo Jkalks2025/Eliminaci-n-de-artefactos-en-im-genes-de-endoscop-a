@@ -5,11 +5,10 @@ torchvision
 numpy
 opencv-python
 pillow
-tqdm
 matplotlib
-tensorboardX
-tensorboard
 pandas
+scipy
+tabulate
 gdown
 # notebooks
 notebook

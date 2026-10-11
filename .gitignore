@@ -1,9 +1,13 @@
 __pycache__/
 *.pyc
 
-# Dependencias, pesos y datos que no van en git (ver preparar_entorno.py)
+# Dependencias, pesos, datos y modelos que no van en git (ver preparar_entorno.py)
 externos/
 *.pth
+datos/raw/*
+!datos/raw/.gitkeep
+datos/c3vd/
+modelos/
 Endo-STTN/datasets/*
 !Endo-STTN/datasets/.gitkeep
 Endo-STTN/release_model/

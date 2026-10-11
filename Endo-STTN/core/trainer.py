@@ -11,7 +11,6 @@ from tensorboardX import SummaryWriter
 
 from core.dataset import Dataset
 from core.loss import AdversarialLoss
-from core.depth_loss import DepthLoss
 import sys
 epsilon=sys.float_info.epsilon
 
@@ -46,14 +45,6 @@ class Trainer():
         self.adversarial_loss = AdversarialLoss(type=self.config['losses']['GAN_LOSS'])
         self.adversarial_loss = self.adversarial_loss.to(self.config['device'])
         self.l1_loss = nn.L1Loss()
-
-        # depth loss: modelo de profundidad congelado guia al generador (depth_weight = 0 lo desactiva)
-        self.depth_weight = config['losses'].get('depth_weight', 0)
-        self.depth_warmup = 0
-        self.depth_loss = None
-        if self.depth_weight > 0:
-            self.depth_warmup = config['depth'].get('warmup_iters', 0)
-            self.depth_loss = DepthLoss.from_config(config['depth'], self.config['device'])
 
         # setup models including generator and discriminator
         net = importlib.import_module('model.'+config['model'])
@@ -285,15 +276,7 @@ class Trainer():
             gen_loss += valid_loss 
             self.add_summary(
                 self.gen_writer, 'loss/valid_loss', valid_loss.item())
-
-            # generator depth loss (el gradiente atraviesa el modelo de profundidad -> netG)
-            depth_loss = torch.zeros((), device=device)
-            if self.depth_loss is not None and self.iteration > self.depth_warmup:
-                depth_loss = self.depth_loss(comp_img, frames, masks) * self.depth_weight
-                gen_loss += depth_loss
-            self.add_summary(
-                self.gen_writer, 'loss/depth_loss', depth_loss.item())
-
+            
             self.optimG.zero_grad()
             gen_loss.backward()
             self.optimG.step()
@@ -303,7 +286,7 @@ class Trainer():
                 pbar.update(1)
                 pbar.set_description((
                     f"d: {dis_loss.item():.3f}; g: {gan_loss.item():.3f};"
-                    f"hole: {hole_loss.item():.3f}; valid: {valid_loss.item():.3f}; depth: {depth_loss.item():.3f}")
+                    f"hole: {hole_loss.item():.3f}; valid: {valid_loss.item():.3f}")
                 )
 
             # saving models

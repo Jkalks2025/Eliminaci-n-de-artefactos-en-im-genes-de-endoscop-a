@@ -5,7 +5,7 @@
 1. Clona AF-SfMLearner (estimador de profundidad) en externos/, fijado a la versión probada.
 2. Descarga sus pesos End-to-end (entrenados en SCARED) en externos/pesos/.
 3. Descarga el modelo preentrenado de Endo-STTN (gen_00009.pth) en Endo-STTN/release_model/.
-4. Revisa que existan los datos de C3VD convertidos.
+4. Revisa que existan los videos de C3VDv2 en datos/raw/ y si ya se prepararon.
 
 Lo que no se pueda descargar solo se indica al final, con el enlace para hacerlo a mano.
 Se puede correr las veces que haga falta: lo que ya existe no se vuelve a descargar.
@@ -25,7 +25,8 @@ AFSFM_PESOS = EXTERNOS / "pesos" / "Model_trained_end_to_end"
 AFSFM_PESOS_GDRIVE = "1kf7LjQ6a2ACKr6nX5Uyee3of3bXn1xWB"   # Model zoo de AF-SfMLearner, fila End-to-end
 STTN_PRE = RAIZ / "Endo-STTN" / "release_model" / "pretrained_model" / "gen_00009.pth"
 STTN_PRE_GDRIVE = "14sdaDejsxgRuzHBSuqH2xEpbxuqyWI-R"      # copia de gen_00009.pth en Google Drive
-DATOS = RAIZ / "Endo-STTN" / "datasets" / "C3VD"
+RAW = RAIZ / "datos" / "raw"
+DATOS = RAIZ / "datos" / "c3vd"
 
 pendientes = []
 
@@ -89,12 +90,14 @@ else:
     pendientes.append("gen_00009.pth: enlace 'pretrained model' del README de github.com/endomapper/Endo-STTN -> "
                       f"descomprimir para que quede en {STTN_PRE}")
 
-print("4. Datos C3VD convertidos")
-if (DATOS / "train.json").exists() and any((DATOS / "JPEGImages").glob("*.zip")):
-    print(f"   listos en {DATOS}")
+print("4. Datos C3VDv2")
+zips = sorted(RAW.glob("*.zip"))
+if not zips:
+    pendientes.append(f"Datos: descargar los videos de C3VDv2 (ZIPs con rgb/ y depth/) en {RAW}")
+elif (DATOS / "division.json").exists():
+    print(f"   {len(zips)} ZIPs en datos/raw; ya preparados en {DATOS}")
 else:
-    pendientes.append("Datos: descargar videos de C3VDv2 (doi:10.7281/T1/JC64MK) en Endo-STTN/datasets/raw/ "
-                      "y correr  cd Endo-STTN ; python preparar_todos_c3vd.py")
+    print(f"   {len(zips)} ZIPs en datos/raw; falta prepararlos:  python codigo/preparar_datos.py")
 
 print()
 if pendientes:
@@ -102,4 +105,4 @@ if pendientes:
     for p in pendientes:
         print("  -", p)
 else:
-    print("Todo listo. Siguiente:  cd Endo-STTN ; python check_depth_weights.py")
+    print("Todo listo. Siguiente:  python codigo/probar_formato.py")
