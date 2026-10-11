@@ -62,12 +62,14 @@ def leer_rgb(zf, ruta):
 
 
 def leer_profundidad(zf, ruta):
-    """Profundidad en mm (float32). 0 = sin dato."""
+    """Profundidad en mm (float32). 0 = sin dato (incluye píxeles saturados)."""
     d = cv2.imdecode(np.frombuffer(zf.read(ruta), np.uint8), cv2.IMREAD_UNCHANGED)
     if d.ndim == 3:
         d = d[..., 0]
     if d.dtype == np.uint16:
-        return d.astype(np.float32) * (PROF_MAX_MM / 65535.0)
+        mm = d.astype(np.float32) * (PROF_MAX_MM / 65535.0)
+        mm[d == 65535] = 0          # saturado: "más lejos que PROF_MAX_MM", no es una medida
+        return mm
     return d.astype(np.float32)
 
 
