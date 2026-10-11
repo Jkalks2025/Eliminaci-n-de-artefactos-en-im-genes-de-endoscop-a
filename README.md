@@ -57,42 +57,42 @@ usan las características de una red de clasificación para medir la similitud v
 estimador de profundidad, así que la pérdida mide la **consistencia geométrica**.
 
 Sea $G$ Endo-STTN con pesos $\theta$, $D$ el estimador congelado, $I$ el frame limpio y $M$ la máscara.
-El frame reconstruido es $\hat I = I\,(1-M) + M\,G_\theta(I\,(1-M))$ y
+El frame reconstruido es $\hat I = I (1-M) + M G_\theta(I (1-M))$ y
 
-$$
-\mathcal{L}_{depth} = \frac{\sum_p w_p \,\big|\,\mathcal{N}(D(\hat I))_p - \mathcal{N}(D(I))_p\big|}{\sum_p w_p},
+```math
+\mathcal{L}_{depth} = \frac{\sum_p w_p  \big| \mathcal{N}(D(\hat I))_p - \mathcal{N}(D(I))_p\big|}{\sum_p w_p},
 \qquad
-\mathcal{N}(d) = \frac{d - \operatorname{med}(d)}{\operatorname{mean}\,|d - \operatorname{med}(d)|},
+\mathcal{N}(d) = \frac{d - \mathrm{med}(d)}{\mathrm{mean} |d - \mathrm{med}(d)|},
 \qquad w = 1 + 4M
-$$
+```
 
 $\mathcal{N}$ normaliza cada mapa por su mediana y su desviación absoluta, para que la comparación no
 dependa de la escala ambigua (como en las pérdidas invariantes a escala [7, 8]). El peso $w$ da 5 veces más
 importancia a la zona rellenada. La pérdida total del generador es
-$\mathcal{L}_G = \mathcal{L}_{GAN} + \mathcal{L}_{hole} + \mathcal{L}_{valid} + \lambda\,\mathcal{L}_{depth}$, con $\lambda = 0.1$.
+$`\mathcal{L}_G = \mathcal{L}_{GAN} + \mathcal{L}_{hole} + \mathcal{L}_{valid} + \lambda \mathcal{L}_{depth}`$, con $\lambda = 0.1$.
 
 Los pesos de $D$ no se actualizan, pero el gradiente **sí pasa a través de** $D$ por la regla de la cadena:
 
-$$
+```math
 \frac{\partial \mathcal{L}_{depth}}{\partial \theta}
 = \frac{\partial \mathcal{L}_{depth}}{\partial D(\hat I)}\cdot
   \frac{\partial D(\hat I)}{\partial \hat I}\cdot
   \frac{\partial \hat I}{\partial G_\theta}\cdot
   \frac{\partial G_\theta}{\partial \theta},
 \qquad \frac{\partial \hat I}{\partial G_\theta} = M
-$$
+```
 
 El término $\partial D/\partial \hat I$ lo aporta el estimador: le indica a Endo-STTN en qué dirección
 cambiar cada píxel rellenado para que la geometría estimada se parezca a la del tejido real. El factor $M$
 hace que solo se corrija la zona inventada.
 
 ### 5. Hipótesis y evaluación
-**Hipótesis:** añadir $\mathcal{L}_{depth}$ hace que Endo-STTN rellene los reflejos con contenido
+**Hipótesis:** añadir $`\mathcal{L}_{depth}`$ hace que Endo-STTN rellene los reflejos con contenido
 geométricamente coherente (menor error de profundidad en la zona rellenada) sin perder calidad de
 imagen (PSNR similar).
 
 **Evaluación:** en un video de C3VDv2 que no se usa para entrenar, comparamos tres modelos (Endo-STTN
-preentrenado, ajustado con $\mathcal{L}_{depth}$ y ajustado sin ella), midiendo dentro de la máscara el
+preentrenado, ajustado con $`\mathcal{L}_{depth}`$ y ajustado sin ella), midiendo dentro de la máscara el
 PSNR contra el frame limpio y el error de profundidad invariante a escala.
 
 **Datos:** C3VD [10] y su extensión C3VDv2 [11] son videos de colonoscopía sobre modelos anatómicos de
