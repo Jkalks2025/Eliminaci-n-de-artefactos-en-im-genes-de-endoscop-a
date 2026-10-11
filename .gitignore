@@ -1,2 +1,11 @@
 __pycache__/
 *.pyc
+
+# Dependencias, pesos y datos que no van en git (ver preparar_entorno.py)
+externos/
+*.pth
+Endo-STTN/datasets/*
+!Endo-STTN/datasets/.gitkeep
+Endo-STTN/release_model/
+Endo-STTN/results/
+.ipynb_checkpoints/

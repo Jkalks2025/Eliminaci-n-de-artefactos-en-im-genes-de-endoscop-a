@@ -1,0 +1,16 @@
+# Instalar PyTorch primero según tu GPU/CUDA: https://pytorch.org/get-started/locally/
+# (probado con torch 1.x y 2.x)
+torch
+torchvision
+numpy
+opencv-python
+pillow
+tqdm
+matplotlib
+tensorboardX
+tensorboard
+pandas
+gdown
+# notebooks
+notebook
+ipykernel

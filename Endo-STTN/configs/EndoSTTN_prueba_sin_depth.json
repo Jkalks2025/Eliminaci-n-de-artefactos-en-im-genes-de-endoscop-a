@@ -3,7 +3,7 @@
     "seed": 2020,
     "save_dir": "release_model/",
     "data_loader": {
-        "name": "EndoSTTN_dataset",
+        "name": "C3VD",
         "data_root": "datasets/",
         "w": 288,
         "h": 288,
@@ -16,12 +16,12 @@
         "valid_weight": 1,
         "adversarial_weight": 0.01,
         "GAN_LOSS": "hinge",
-        "depth_weight": 0.1
+        "depth_weight": 0
     },
     "depth": {
         "model": "afsfmlearner",
-        "afsfm_path": "D:/Git/AF-SfMLearner",
-        "weights_dir": "D:/Git/pesos/Model_trained_end_to_end",
+        "afsfm_path": "../externos/AF-SfMLearner",
+        "weights_dir": "../externos/pesos/Model_trained_end_to_end",
         "warmup_iters": 200,
         "mask_weight": 4.0,
         "max_frames": 2

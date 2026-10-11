@@ -1,7 +1,7 @@
-"""Pérdida de profundidad para entrenar Endo-STTN guiado por MonoIIT.
+"""Pérdida de profundidad para entrenar Endo-STTN guiado por un estimador de profundidad.
 
-MonoIIT (encoder mpvit_small + decoder HR-Depth de MonoViT) se usa CONGELADO:
-sus pesos no se actualizan, pero el gradiente atraviesa sus activaciones y llega
+El estimador (AF-SfMLearner, Monodepth2 o MonoIIT, según `depth.model` del config) se usa
+CONGELADO: sus pesos no se actualizan, pero el gradiente atraviesa sus activaciones y llega
 al generador de Endo-STTN. La idea es que el frame reconstruido produzca la misma
 disparidad que el frame limpio original (ground truth del entrenamiento).
 """
@@ -138,7 +138,7 @@ def scale_invariant_l1(pred, target, weight=None, eps=1e-6):
 
 
 class DepthLoss(nn.Module):
-    """L_depth(comp_img, frames): disparidad de MonoIIT del frame reconstruido vs. del frame limpio.
+    """L_depth(comp_img, frames): disparidad del frame reconstruido vs. la del frame limpio.
 
     Entradas (como en core/trainer.py de Endo-STTN):
         pred   (N,3,H,W) en [-1,1], con gradiente (comp_img)

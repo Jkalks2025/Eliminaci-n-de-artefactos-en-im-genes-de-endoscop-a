@@ -16,7 +16,7 @@ import cv2
 ORIGEN = "datasets/raw/c1_ascending_t1_v2.zip"
 NOMBRE = "c1_ascending_t1_v2"
 RAW = "datasets/raw"                              # zips originales de C3VD
-RAIZ = "datasets/EndoSTTN_dataset"                # carpeta del dataset convertido
+RAIZ = "datasets/C3VD"                           # carpeta del dataset convertido
 TAMANO = (288, 288)                               # ancho, alto
 UMBRAL = 230   # brillo minimo (0-255) para marcar un pixel como reflejo
 VIDEOS_EVAL = ["c2_descending_t4_v3"]   # se excluyen de train.json (para evaluar)
