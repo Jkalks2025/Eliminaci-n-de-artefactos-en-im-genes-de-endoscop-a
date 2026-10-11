@@ -32,6 +32,8 @@ gen_loss = gan + hole + valid + depth_weight · L_depth   ──► backward ─
 | `configs/EndoSTTN_depth_local.json` | Config del repo oficial ajustada a una laptop + bloque `depth`. |
 | `prepare_one_video.py` | Crea un dataset de un solo video (carpeta de frames o `.mp4`) para pruebas. |
 | `check_depth_weights.py` | Verifica que tus pesos reales cargan y que el gradiente pasa. |
+| `Equipo19_EndoSTTN_Profundidad_local.ipynb` | Notebook que explica y reproduce la prueba en la laptop (`D:\Git\Endo-STTN`). |
+| `Equipo19_EndoSTTN_Profundidad_colab.ipynb` | El mismo notebook para Google Colab: clona, descarga pesos y lee los datos de Drive. |
 | `test_depth_loss.py` | Prueba sin pesos: el gradiente llega a `netG` y el modelo de profundidad no cambia. |
 
 ### Pasos (Windows)
