@@ -4,7 +4,10 @@ Proyecto para eliminar reflejos especulares en video endoscópico sin deformar l
 tejido. Combina **Endo-STTN** (inpainting temporal) con un **estimador de profundidad monocular**
 (AF-SfMLearner) y se evalúa en **C3VDv2** (colonoscopía 3D).
 
-**Integrantes:** *(por completar: nombre · matrícula)*
+**Integrantes (Equipo 19):**
+- Javier Emmanuel García Escobedo
+- Mario Raúl García Ramírez
+- Juan Miguel Molina Reyes
 
 ## Avances
 
