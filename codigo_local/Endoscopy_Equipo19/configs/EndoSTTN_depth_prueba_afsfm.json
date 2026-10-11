@@ -3,7 +3,7 @@
     "seed": 2020,
     "save_dir": "release_model/",
     "data_loader": {
-        "name": "prueba_1video",
+        "name": "EndoSTTN_dataset",
         "data_root": "datasets/",
         "w": 288,
         "h": 288,

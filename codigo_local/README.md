@@ -30,6 +30,8 @@ gen_loss = gan + hole + valid + depth_weight · L_depth   ──► backward ─
 | `core/trainer.py` | `trainer.py` oficial + pérdida de profundidad (las líneas marcadas `depth`). |
 | `train.py` | Sin cambios respecto al oficial (referencia). |
 | `configs/EndoSTTN_depth_local.json` | Config del repo oficial ajustada a una laptop + bloque `depth`. |
+| `preparar_c3vd.py` | Convierte un ZIP de C3VD (carpeta `rgb/`) al formato de Endo-STTN; crea `train.json` y `test.json`. |
+| `preparar_todos_c3vd.py` | Convierte todos los ZIPs de `datasets/raw`; deja `VIDEOS_EVAL` fuera de `train.json`. |
 | `prepare_one_video.py` | Crea un dataset de un solo video (carpeta de frames o `.mp4`) para pruebas. |
 | `check_depth_weights.py` | Verifica que tus pesos reales cargan y que el gradiente pasa. |
 | `Equipo19_EndoSTTN_Profundidad_local.ipynb` | Notebook que explica y reproduce la prueba en la laptop (`D:\Git\Endo-STTN`). |
