@@ -36,7 +36,9 @@ pip install -r requirements.txt
 ```bash
 python preparar_entorno.py
 ```
-Al final indica si falta algo y cómo conseguirlo.
+Los pesos se descargan de la [carpeta compartida del Equipo 19](https://drive.google.com/drive/folders/1_L36tu2Q4mr1VXogK7a7M3bfcj9-bMU3)
+(`gen_00009.pth` y `Model_trained_end_to_end.zip`). Al final el script indica si falta algo y cómo conseguirlo.
+Lo único que cada persona descarga por su cuenta son los videos de C3VDv2.
 
 **3. Prueba rápida** (sin datos ni pesos: comprueba que los 4 pasos funcionan, con datos sintéticos)
 ```bash

@@ -22,17 +22,21 @@ AFSFM_DIR = EXTERNOS / "AF-SfMLearner"
 AFSFM_REPO = "https://github.com/ShuweiShao/AF-SfMLearner.git"
 AFSFM_COMMIT = "53d01a4"                                   # versión probada
 AFSFM_PESOS = EXTERNOS / "pesos" / "Model_trained_end_to_end"
-AFSFM_PESOS_GDRIVE = "1kf7LjQ6a2ACKr6nX5Uyee3of3bXn1xWB"   # Model zoo de AF-SfMLearner, fila End-to-end
+# Copias en la carpeta compartida del Equipo 19 (primero) y enlaces originales (respaldo)
+CARPETA_EQUIPO = "https://drive.google.com/drive/folders/1_L36tu2Q4mr1VXogK7a7M3bfcj9-bMU3"
+AFSFM_PESOS_GDRIVE = ["1ZogZ5nQsfLhFAQGG_UE9A5R_osypLZf1",   # Equipo 19
+                      "1kf7LjQ6a2ACKr6nX5Uyee3of3bXn1xWB"]   # Model zoo de AF-SfMLearner, fila End-to-end
 STTN_PRE = RAIZ / "Endo-STTN" / "release_model" / "pretrained_model" / "gen_00009.pth"
-STTN_PRE_GDRIVE = "14sdaDejsxgRuzHBSuqH2xEpbxuqyWI-R"      # copia de gen_00009.pth en Google Drive
+STTN_PRE_GDRIVE = ["1Evx0YSlb7YK0WWok862gddT62gDgv6ux",      # Equipo 19
+                   "14sdaDejsxgRuzHBSuqH2xEpbxuqyWI-R"]      # copia del Equipo 52
 RAW = RAIZ / "datos" / "raw"
 DATOS = RAIZ / "datos" / "c3vd"
 
 pendientes = []
 
 
-def gdown(file_id, destino):
-    """Descarga un archivo público de Google Drive. Devuelve True si funcionó."""
+def gdown(ids, destino):
+    """Descarga un archivo público de Google Drive, probando cada id en orden. Devuelve True si funcionó."""
     try:
         import gdown as g
     except ImportError:
@@ -42,11 +46,13 @@ def gdown(file_id, destino):
         except ImportError:
             return False
     destino.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        return g.download(id=file_id, output=str(destino), quiet=False) is not None and destino.exists()
-    except Exception as e:
-        print(f"   No se pudo descargar: {e}")
-        return False
+    for file_id in ids:
+        try:
+            if g.download(id=file_id, output=str(destino), quiet=False) is not None and destino.exists():
+                return True
+        except Exception as e:
+            print(f"   No se pudo descargar {file_id}: {e}")
+    return False
 
 
 print("1. AF-SfMLearner")
@@ -78,8 +84,8 @@ else:
     if (AFSFM_PESOS / "encoder.pth").exists():
         print(f"   listos en {AFSFM_PESOS}")
     else:
-        pendientes.append("Pesos de AF-SfMLearner: README de github.com/ShuweiShao/AF-SfMLearner -> Model zoo -> "
-                          f"End-to-end -> guardar el zip como {zip_path} y volver a correr este script")
+        pendientes.append(f"Pesos de AF-SfMLearner: descargar Model_trained_end_to_end.zip de {CARPETA_EQUIPO} "
+                          f"y guardarlo como {zip_path}; luego volver a correr este script")
 
 print("3. Preentrenado de Endo-STTN")
 if STTN_PRE.exists():
@@ -87,8 +93,7 @@ if STTN_PRE.exists():
 elif gdown(STTN_PRE_GDRIVE, STTN_PRE):
     print(f"   listo en {STTN_PRE}")
 else:
-    pendientes.append("gen_00009.pth: enlace 'pretrained model' del README de github.com/endomapper/Endo-STTN -> "
-                      f"descomprimir para que quede en {STTN_PRE}")
+    pendientes.append(f"gen_00009.pth: descargarlo de {CARPETA_EQUIPO} y guardarlo en {STTN_PRE}")
 
 print("4. Datos C3VDv2")
 zips = sorted(RAW.glob("*.zip"))
