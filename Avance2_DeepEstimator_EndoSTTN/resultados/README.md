@@ -1,5 +1,10 @@
 # Resultados del Avance 2
 
+| Prueba | Fecha | Resumen |
+|---|---|---|
+| [Prueba 1](prueba_1/README.md) | 11 oct 2026 | 3 videos de entrenamiento, 1 de prueba, semilla 0. D < C en AbsRel: −23 % en reflejos (p = 0.015) |
+
+
 `python codigo/evaluar_profundidad.py` escribe aquí:
 
 - `evaluacion_resumen.md`: tablas de métricas por región (imagen, reflejos, anillo) y pruebas de Wilcoxon.

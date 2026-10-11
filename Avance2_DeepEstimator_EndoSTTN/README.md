@@ -21,7 +21,8 @@ Los reflejos especulares ocultan el tejido y engañan a los estimadores de profu
 **ajuste fino supervisado** de **AF-SfMLearner** [4] usando la profundidad real del dataset. Para aislar el efecto de
 la limpieza se entrena un segundo estimador idéntico con los frames originales, y ambos se comparan contra la
 profundidad real en videos no vistos, en toda la imagen y dentro de los reflejos. El flujo completo está
-implementado y probado con datos sintéticos; los resultados con C3VDv2 están pendientes.
+implementado y probado con datos sintéticos; en una primera prueba con C3VDv2, el estimador ajustado con frames limpios
+tuvo 23 % menos error relativo dentro de los reflejos que el ajustado con frames originales (resultado preliminar).
 
 ## 1. Objetivo e hipótesis
 
@@ -137,19 +138,25 @@ Wilcoxon pareada por frame (H1: D tiene menor AbsRel). También se reporta A vs.
 | ✅ | Prueba de punta a punta con datos sintéticos (`codigo/prueba_rapida.py`) | Los 4 pasos corren; la limpieza no cambia ningún píxel fuera de la máscara |
 | ✅ | Ajuste fino con datos sintéticos (6 épocas) | AbsRel de validación baja de 0.31 a 0.18: la pérdida y el entrenamiento funcionan |
 | ✅ | AF-SfMLearner con pesos reales en la GPU de la laptop | Carga a 256×320; 0.32 GB de GPU |
-| ⬜ | Formato de la profundidad de C3VDv2 (`probar_formato.py`) | *pendiente* |
-| ⬜ | Preparación y limpieza de C3VDv2 | *pendiente* |
-| ⬜ | Ajuste fino C y D | *pendiente* |
-| ⬜ | Evaluación A–D en videos de prueba | *pendiente* → [`resultados/`](resultados/README.md) |
+| ✅ | Formato de la profundidad de C3VDv2 (`probar_formato.py`) | TIFF 16 bits, 0–100 mm; 65535 = saturado (sin dato) |
+| ✅ | Preparación y limpieza de C3VDv2 (5 videos) | Endo-STTN no cambia ningún píxel fuera de los reflejos |
+| ✅ | Ajuste fino C y D (15 épocas, semilla 0) | AbsRel de validación: C 0.156, D 0.154 |
+| ✅ | **Prueba 1**: evaluación A–D en `c2_descending_t4_v3` | Ver [reporte de la Prueba 1](resultados/prueba_1/README.md) |
+| ⬜ | Prueba 2: más videos de prueba, 3 semillas | *pendiente* |
 
-**AbsRel en los videos de prueba** *(se completa con `evaluar_profundidad.py`)*
+**Prueba 1 · AbsRel en el video de prueba `c2_descending_t4_v3`** (26 frames, semilla 0)
 
 | Modelo | Toda la imagen ↓ | Reflejos ↓ | Anillo ↓ |
 |---|---|---|---|
-| A · SCARED + originales | — | — | — |
-| B · SCARED + limpios | — | — | — |
-| C · ajustado + originales | — | — | — |
-| D · ajustado + limpios | — | — | — |
+| A · SCARED + originales | 0.404 | 0.753 | 0.476 |
+| B · SCARED + limpios | 0.399 | 0.744 | 0.457 |
+| C · ajustado + originales | 0.089 | 0.111 | 0.104 |
+| **D · ajustado + limpios** | **0.078** | **0.085** | **0.075** |
+
+D tiene menos error que C en toda la imagen (−12 %, Wilcoxon p < 0.001) y sobre todo en los reflejos (−23 %, p = 0.015)
+y a su alrededor (−28 %). Limpiar sin reentrenar (B vs A) no cambia significativamente el error. Resultado preliminar:
+un solo video de prueba, que comparte textura con el entrenamiento, y una semilla.
+Detalle, figuras e interpretación: [**reporte de la Prueba 1**](resultados/prueba_1/README.md).
 
 ## 6. Discusión y limitaciones
 

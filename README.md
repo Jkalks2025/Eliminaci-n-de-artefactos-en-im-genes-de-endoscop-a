@@ -14,7 +14,7 @@ monocular** (AF-SfMLearner), usando la profundidad real de **C3VDv2** (colonosco
 | Avance | Tema | Estado | Documento |
 |---|---|---|---|
 | 1 | *(por completar)* | En preparación | [`Avance1/`](Avance1/) |
-| 2 | Endo-STTN limpia los frames → ajuste fino del estimador de profundidad | Implementado y probado con datos sintéticos; resultados con C3VDv2 pendientes | [`Avance2_DeepEstimator_EndoSTTN/README.md`](Avance2_DeepEstimator_EndoSTTN/README.md) |
+| 2 | Endo-STTN limpia los frames → ajuste fino del estimador de profundidad | Prueba 1 con C3VDv2 completada ([resultados](Avance2_DeepEstimator_EndoSTTN/resultados/prueba_1/README.md)) | [`Avance2_DeepEstimator_EndoSTTN/README.md`](Avance2_DeepEstimator_EndoSTTN/README.md) |
 
 Cada avance tiene su propio documento con objetivo, marco teórico, metodología, resultados y referencias.
 

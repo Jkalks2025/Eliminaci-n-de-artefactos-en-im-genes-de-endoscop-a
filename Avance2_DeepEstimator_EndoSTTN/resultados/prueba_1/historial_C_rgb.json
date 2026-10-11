@@ -1,0 +1,105 @@
+{
+  "args": {
+    "entrada": "rgb",
+    "epocas": 15,
+    "lote": 8,
+    "lr": 0.0001,
+    "semilla": 0
+  },
+  "division": {
+    "entrenamiento": [
+      "c2_descending_t4_v1",
+      "c2_descending_t4_v2",
+      "c2_rectum_t1_v1"
+    ],
+    "validacion": [
+      "c2_descending_t3_v1"
+    ],
+    "prueba": [
+      "c2_descending_t4_v3"
+    ]
+  },
+  "epocas": [
+    {
+      "epoca": 0,
+      "perdida": null,
+      "abs_rel_val": 0.39203861928138123
+    },
+    {
+      "epoca": 1,
+      "perdida": 0.1786040159372183,
+      "abs_rel_val": 0.48075357386592116
+    },
+    {
+      "epoca": 2,
+      "perdida": 0.0737465711740347,
+      "abs_rel_val": 0.3866138092715471
+    },
+    {
+      "epoca": 3,
+      "perdida": 0.030172072924100436,
+      "abs_rel_val": 0.28375871807925634
+    },
+    {
+      "epoca": 4,
+      "perdida": 0.0187070369720459,
+      "abs_rel_val": 0.21591025531269437
+    },
+    {
+      "epoca": 5,
+      "perdida": 0.013678569060105544,
+      "abs_rel_val": 0.20902644184335023
+    },
+    {
+      "epoca": 6,
+      "perdida": 0.010840287575354943,
+      "abs_rel_val": 0.1883795936352459
+    },
+    {
+      "epoca": 7,
+      "perdida": 0.01118005239046537,
+      "abs_rel_val": 0.1981905098270189
+    },
+    {
+      "epoca": 8,
+      "perdida": 0.00944826236137977,
+      "abs_rel_val": 0.16758661327977892
+    },
+    {
+      "epoca": 9,
+      "perdida": 0.0077296953934889575,
+      "abs_rel_val": 0.16867976595533524
+    },
+    {
+      "epoca": 10,
+      "perdida": 0.006892708631662222,
+      "abs_rel_val": 0.16422812220382685
+    },
+    {
+      "epoca": 11,
+      "perdida": 0.006461601990919847,
+      "abs_rel_val": 0.1616081131151891
+    },
+    {
+      "epoca": 12,
+      "perdida": 0.006085258263808031,
+      "abs_rel_val": 0.17143222439220307
+    },
+    {
+      "epoca": 13,
+      "perdida": 0.006578124486483061,
+      "abs_rel_val": 0.17312563653948654
+    },
+    {
+      "epoca": 14,
+      "perdida": 0.0060293307671180135,
+      "abs_rel_val": 0.1557039518695709
+    },
+    {
+      "epoca": 15,
+      "perdida": 0.0052941670784583455,
+      "abs_rel_val": 0.16172102184183532
+    }
+  ],
+  "mejor_abs_rel_val": 0.1557039518695709
+}
