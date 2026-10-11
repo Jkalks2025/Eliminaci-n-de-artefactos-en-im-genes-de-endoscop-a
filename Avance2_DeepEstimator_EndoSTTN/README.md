@@ -206,3 +206,8 @@ Instalación y pasos: [README principal](../README.md#cómo-correrlo). En Google
 9. Equipo 52, *La luz que opaca*: evaluación de estimadores de profundidad en SCARED. [github.com/jmtoral/proyecto_integrador_52](https://github.com/jmtoral/proyecto_integrador_52)
 10. T. L. Bobrow et al. *Colonoscopy 3D Video Dataset with Paired Depth from 2D-3D Registration* (C3VD). Medical Image Analysis, 2023.
 11. Golhar et al. *C3VDv2*, 2025.
+
+---
+
+*Este avance se elaboró con apoyo de Claude (Anthropic) para código, documentación y diagramas.
+Todos los integrantes revisaron y validaron el contenido, y el equipo es responsable de él.*

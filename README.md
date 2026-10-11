@@ -96,3 +96,17 @@ primer commit lo agrega tal cual, así que `git log -p -- Endo-STTN` muestra sol
   No se incluye en el repositorio: lo descarga `preparar_entorno.py`.
 - **C3VDv2** — Colonoscopy 3D Video Dataset (Johns Hopkins University). No se incluye en el repositorio.
 - Evaluación previa de estimadores de profundidad: [proyecto_integrador_52](https://github.com/jmtoral/proyecto_integrador_52) (Equipo 52).
+
+## Uso de inteligencia artificial
+
+Este proyecto se desarrolló con apoyo de **Claude** (Anthropic), un asistente de inteligencia
+artificial, en las siguientes tareas:
+- escritura y depuración de código (pérdida de profundidad, integración en Endo-STTN, scripts de
+  preparación de datos y notebooks);
+- redacción y organización de la documentación, incluido el marco teórico;
+- elaboración de diagramas.
+
+Todos los integrantes del Equipo 19 revisaron el contenido generado: verificamos que el código
+funciona en nuestro equipo, contrastamos las explicaciones y referencias con las fuentes originales y
+ajustamos lo necesario. Las decisiones de diseño, los experimentos y las conclusiones son del equipo,
+que asume la responsabilidad total del contenido de este repositorio.
