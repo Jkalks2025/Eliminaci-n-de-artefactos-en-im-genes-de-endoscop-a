@@ -1,6 +1,6 @@
 # Avance 2 · Endo-STTN limpia los frames para mejorar la estimación de profundidad
 
-**Equipo 19** · Eliminación de reflejos especulares en video endoscópico
+**Equipo 19** · Eliminación de reflejos especulares en video endoscópico · Reporte en PDF: [`Avance2__Equipo19.pdf`](Avance2__Equipo19.pdf)
 
 > **Cómo revisar este avance en 5 minutos**
 > 1. Lee el [Resumen](#resumen) y mira la [figura del método](#4-metodología).
