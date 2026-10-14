@@ -13,7 +13,7 @@ monocular** (AF-SfMLearner), usando la profundidad real de **C3VDv2** (colonosco
 
 | Avance | Tema | Estado | Documento |
 |---|---|---|---|
-| 1 | *(por completar)* | En preparación | [`Avance1/`](Avance1/) |
+| 1 | Exploración de datos de C3VDv2 | Completado | [`Avance1/README.md`](Avance1/README.md) · [notebook](Avance1/Exploracion_de_Datos_Equipo19.ipynb) |
 | 2 | Endo-STTN limpia los frames → ajuste fino del estimador de profundidad | Prueba 1 con C3VDv2 completada ([resultados](Avance2_DeepEstimator_EndoSTTN/resultados/prueba_1/README.md)) | [`Avance2_DeepEstimator_EndoSTTN/README.md`](Avance2_DeepEstimator_EndoSTTN/README.md) |
 
 Cada avance tiene su propio documento con objetivo, marco teórico, metodología, resultados y referencias.
@@ -77,7 +77,7 @@ codigo/                           código del Equipo 19
 ├── evaluar_profundidad.py        paso 4: evaluación A-D y Wilcoxon
 ├── probar_formato.py             revisa el formato de un ZIP de C3VDv2
 └── prueba_rapida.py              prueba de punta a punta con datos sintéticos
-Avance1/                          (por completar)
+Avance1/                          exploración de datos de C3VDv2 (notebook ejecutado y resumen)
 Avance2_DeepEstimator_EndoSTTN/   documento del Avance 2, figuras, notebooks y resultados
 Endo-STTN/                        Endo-STTN original, sin modificaciones (se usa congelado)
 datos/raw/                        aquí van los ZIPs de C3VDv2 (no se suben a git)
