@@ -1,4 +1,4 @@
-"""Paso 4: compara la profundidad de los cuatro modelos contra la profundidad real de C3VDv2.
+"""Paso 4: compara la profundidad de los modelos contra la profundidad real de C3VDv2.
 
     python codigo/evaluar_profundidad.py
     python codigo/evaluar_profundidad.py --semilla 0
@@ -8,6 +8,7 @@
 | B      | AF-SfMLearner (SCARED)        | limpios          |
 | C      | ajustado con frames originales| originales       |
 | D      | ajustado con frames limpios   | limpios          |
+| E      | Endo-STTN + estimador ajustados juntos (Avance3_EntrenamientoConjunto/ajustar_conjunto.py) | limpios por su Endo-STTN |
 
 Mide en videos de prueba (no usados para entrenar), en tres regiones: toda la imagen, dentro de
 los reflejos y un anillo de 10 px alrededor. Guarda en Avance2_DeepEstimator_EndoSTTN/resultados/:
@@ -60,11 +61,15 @@ def main():
         "B": (mp.PESOS_SCARED, "rgb_limpio"),
         "C": (c3vd.DIR_MODELOS / f"rgb_s{args.semilla}", "rgb"),
         "D": (c3vd.DIR_MODELOS / f"rgb_limpio_s{args.semilla}", "rgb_limpio"),
+        "E": (c3vd.DIR_MODELOS / f"conjunto_s{args.semilla}", f"rgb_conjunto_s{args.semilla}"),
     }
     filas = []
     for nombre, (pesos, entrada) in modelos.items():
         if not (pesos / "encoder.pth").exists():
             print(f"[omitido] {nombre}: no existe {pesos}")
+            continue
+        if not all((c3vd.DIR_DATOS / v / f"{entrada}.npy").exists() for v in prueba):
+            print(f"[omitido] {nombre}: faltan los frames {entrada}.npy en los videos de prueba")
             continue
         enc, dec = mp.cargar(pesos, device)
         enc.eval(); dec.eval()
@@ -90,7 +95,8 @@ def main():
     resumen.to_csv(RESULTADOS / "evaluacion_resumen.csv")
 
     pruebas = [p for p in (wilcoxon(df, "C", "D"), wilcoxon(df, "A", "B"),
-                           wilcoxon(df, "C", "D", "imagen")) if p]
+                           wilcoxon(df, "C", "D", "imagen"),
+                           wilcoxon(df, "D", "E"), wilcoxon(df, "D", "E", "imagen")) if p]
     with open(RESULTADOS / "evaluacion_resumen.md", "w") as f:
         f.write(f"Videos de prueba: {', '.join(prueba)}  \nAjuste fino: semilla {args.semilla}\n\n")
         for reg in ["imagen", "reflejos", "anillo"]:
