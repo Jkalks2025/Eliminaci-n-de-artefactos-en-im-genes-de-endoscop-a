@@ -64,7 +64,13 @@ Avance 2, pero con los pesos ajustados.
 
 ## 4. Cómo correrlo
 
-Requiere haber corrido los pasos 1 y 2 del Avance 2 (`preparar_datos.py` y `limpiar_endosttn.py`), porque se usan
+**En Google Colab (recomendado):** [`notebooks/Equipo19_Avance3_colab.ipynb`](notebooks/Equipo19_Avance3_colab.ipynb).
+Usa los mismos videos del Avance 2 desde `MyDrive/Equipo19/` (`c3vd_preparado.zip` o `raw/`) y reutiliza los
+modelos C y D que guardó el notebook del Avance 2 en `MyDrive/Equipo19/modelos/`. Si faltan, los prepara o entrena
+ahí mismo. Después entrena E, evalúa A–E y compara visualmente el relleno de D contra el de E. Guarda los frames
+limpios en `c3vd_limpio.zip`, los modelos en `modelos/` y los resultados en `resultados_avance3/` (en Drive).
+
+**En una computadora:** requiere haber corrido los pasos 1 y 2 del Avance 2 (`preparar_datos.py` y `limpiar_endosttn.py`), porque se usan
 `rgb_limpio.npy` (ancla y diagnóstico) y la misma división de videos.
 
 ```bash
@@ -93,6 +99,7 @@ python Avance3_EntrenamientoConjunto/ajustar_conjunto.py --lote 1
 |---|---|---|
 | ✅ | Prueba de punta a punta con datos sintéticos (`codigo/prueba_rapida.py`) | Corren C, D y E, y la evaluación incluye E |
 | ✅ | El gradiente de la profundidad llega a Endo-STTN (encoder, transformer y decoder) | Verificado |
+| ✅ | Notebook de Colab: celdas probadas con datos sintéticos (sin la de montar Drive) | Corren y generan las figuras |
 | ⬜ | E con C3VDv2, semilla 0, comparado contra D de la Prueba 1 | *pendiente* |
 | ⬜ | Variantes: `transformer` y $`\lambda_a > 0`$; 3 semillas | *pendiente* |
 | ⬜ | Inspección visual del relleno de E contra el de D | *pendiente* |
@@ -111,6 +118,7 @@ python Avance3_EntrenamientoConjunto/ajustar_conjunto.py --lote 1
 | Archivo | Contenido |
 |---|---|
 | [`ajustar_conjunto.py`](ajustar_conjunto.py) | Entrenamiento conjunto Endo-STTN + AF-SfMLearner (modelo E) |
+| [`notebooks/Equipo19_Avance3_colab.ipynb`](notebooks/Equipo19_Avance3_colab.ipynb) | Flujo completo en Colab con figuras (curvas, relleno D vs E, profundidad A–E) |
 | [`../codigo/evaluar_profundidad.py`](../codigo/evaluar_profundidad.py) | Evaluación de A–E (incluye D vs E) |
 | [`../codigo/limpiar_endosttn.py`](../codigo/limpiar_endosttn.py) | Inferencia de Endo-STTN (`limpiar_video`, `cargar`), usada también por E |
 
