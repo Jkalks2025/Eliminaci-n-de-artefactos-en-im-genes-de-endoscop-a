@@ -61,6 +61,20 @@ def limpiar_bloque(modelo, rgb, mask, device):
     return out
 
 
+def limpiar_video(modelo, rgb, mask, device, bloque=60):
+    """Limpia un video completo por bloques de frames."""
+    rgb, mask = np.asarray(rgb), np.asarray(mask)
+    return np.concatenate([limpiar_bloque(modelo, rgb[i:i + bloque], mask[i:i + bloque], device)
+                           for i in range(0, len(rgb), bloque)])
+
+
+def cargar(pesos, device):
+    """Endo-STTN (InpaintGenerator) con los pesos de un checkpoint {'netG': ...}."""
+    modelo = InpaintGenerator().to(device)
+    modelo.load_state_dict(torch.load(pesos, map_location=device)["netG"])
+    return modelo.eval()
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pesos", default=str(ENDO_STTN / "release_model" / "pretrained_model" / "gen_00009.pth"))
@@ -69,9 +83,7 @@ def main():
     args = ap.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    modelo = InpaintGenerator().to(device)
-    modelo.load_state_dict(torch.load(args.pesos, map_location=device)["netG"])
-    modelo.eval()
+    modelo = cargar(args.pesos, device)
     print(f"Endo-STTN: {args.pesos} | {device}")
 
     videos = c3vd.videos_preparados()
@@ -84,8 +96,7 @@ def main():
             continue
         rgb, _, mask = c3vd.cargar_video(video)
         rgb, mask = np.asarray(rgb), np.asarray(mask)
-        out = np.concatenate([limpiar_bloque(modelo, rgb[i:i + args.bloque], mask[i:i + args.bloque], device)
-                              for i in range(0, len(rgb), args.bloque)])
+        out = limpiar_video(modelo, rgb, mask, device, args.bloque)
         np.save(destino, out)
         cambio = np.abs(out.astype(np.int16) - rgb).mean(-1)
         print(f"[{k}/{len(videos)}] {video}: {len(rgb)} frames | píxeles modificados fuera de la máscara: "

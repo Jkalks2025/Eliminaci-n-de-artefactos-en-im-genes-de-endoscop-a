@@ -4,7 +4,7 @@
 
 Necesita solo el código de AF-SfMLearner en externos/ (lo clona preparar_entorno.py).
 Crea en una carpeta temporal ZIPs con el formato de C3VDv2 (rgb/ + depth/), pesos aleatorios de
-AF-SfMLearner y Endo-STTN, y ejecuta preparar -> limpiar -> ajustar (C y D, 1 época) -> evaluar.
+AF-SfMLearner y Endo-STTN, y ejecuta preparar -> limpiar -> ajustar (C, D y E, 1 época) -> evaluar.
 No dice nada de la calidad de los modelos: solo comprueba que el flujo funciona de punta a punta.
 """
 import os
@@ -65,6 +65,7 @@ def main():
         ["limpiar_endosttn.py", "--pesos", str(tmp / "gen_aleatorio.pth")],
         ["ajustar_profundidad.py", "--entrada", "rgb", "--epocas", "1", "--lote", "4"],
         ["ajustar_profundidad.py", "--entrada", "rgb_limpio", "--epocas", "1", "--lote", "4"],
+        ["../Avance3_EntrenamientoConjunto/ajustar_conjunto.py", "--pesos-sttn", str(tmp / "gen_aleatorio.pth"), "--epocas", "1", "--lote", "1"],
         ["evaluar_profundidad.py"],
     ]
     for paso in pasos:
@@ -74,7 +75,7 @@ def main():
             raise SystemExit(f"FALLÓ: {paso[0]}")
 
     assert (tmp / "resultados" / "evaluacion_resumen.csv").exists()
-    print(f"\nPRUEBA RÁPIDA OK: los 4 pasos corrieron de punta a punta (archivos en {tmp}).")
+    print(f"\nPRUEBA RÁPIDA OK: los pasos corrieron de punta a punta (archivos en {tmp}).")
 
 
 if __name__ == "__main__":
