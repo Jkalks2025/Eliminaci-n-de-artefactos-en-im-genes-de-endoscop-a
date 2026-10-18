@@ -6,6 +6,7 @@ Ese hueco cae sobre tejido sano, cuyo color sí se conoce, así que el modelo ap
 se le puede medir el error (pseudo ground truth). Así lo hace Endo-STTN/core/dataset.py al entrenar.
 """
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -27,14 +28,109 @@ DIR_RESULTADOS = Path(os.environ.get("EQUIPO19_RESULTADOS_31", AQUI / "resultado
 
 LADO = 288            # resolución de Endo-STTN
 DESPLAZAMIENTO = 50   # px a 288x288, como Endo-STTN/core/dataset.py
+MIN_PIXELES = 30      # frames con un hueco más chico no se evalúan (como quantifyResults.ipynb)
+METODOS_MASCARA = ["meslouhi", "umbral"]
 
 
-def a_288(rgb_320, mask_320):
-    """Frame y máscara de 320x256 (Avance 2) a 288x288, igual que limpiar_endosttn.limpiar_bloque."""
-    rgb = cv2.resize(rgb_320, (LADO, LADO), interpolation=cv2.INTER_AREA)
-    mask = cv2.resize(mask_320.astype(np.uint8), (LADO, LADO), interpolation=cv2.INTER_NEAREST)
-    return rgb, mask.astype(bool)
+# ---------------------------------------------------------------- máscaras de reflejos
 
+def _srgb_a_xyz(img):
+    """RGB en [0,1] (sRGB, D65) a CIE-XYZ, como rgb2xyz de MATLAB."""
+    lin = np.where(img <= 0.04045, img / 12.92, ((img + 0.055) / 1.055) ** 2.4)
+    m = np.array([[0.4124564, 0.3575761, 0.1804375],
+                  [0.2126729, 0.7151522, 0.0721750],
+                  [0.0193339, 0.1191920, 0.9503041]])
+    return lin @ m.T
+
+
+def mascara_meslouhi(rgb):
+    """Detección de reflejos de El Meslouhi et al. (2011), la que usaron los autores de Endo-STTN.
+
+    Traducción de Endo-STTN/dataset_prep/SpecularDetectionMeslouhi2011.m y createSpecularMasks288.m:
+    1. realce: cada canal se multiplica por min(RGB)/max(RGB) (apaga los colores saturados);
+    2. se pasa a CIE-XYZ;
+    3. reflejo donde la luminancia Y >= la luminancia cromática y = Y / (X + Y + Z);
+    4. dilatación de 1 px con un rombo.
+    rgb (H,W,3) uint8 -> (H,W) bool.
+    """
+    img = rgb.astype(np.float64) / 255
+    mn, mx = img.min(-1), img.max(-1)
+    s = np.divide(mn, mx, out=np.zeros_like(mn), where=mx > 0)
+    xyz = _srgb_a_xyz(s[..., None] * img)
+    suma = xyz.sum(-1)
+    y = np.divide(xyz[..., 1], suma, out=np.full_like(suma, np.inf), where=suma > 0)
+    m = (xyz[..., 1] >= y).astype(np.uint8)
+    rombo = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], np.uint8)
+    return cv2.dilate(m, rombo).astype(bool)
+
+
+def frame_y_mascara(rgb, metodo):
+    """Frame original de C3VDv2 -> frame y máscara a 288x288 (uint8, bool).
+
+    El frame pasa primero a 320x256 y luego a 288x288, igual que en el Avance 2 y en la inferencia.
+    - meslouhi: la máscara se calcula a 288x288, como hicieron los autores.
+    - umbral: la del Avance 2 (brillo >= 230, dilatada 3 px a 320x256), llevada a 288x288.
+    """
+    rgb_320 = cv2.resize(rgb, (c3vd.ANCHO, c3vd.ALTO), interpolation=cv2.INTER_AREA)
+    rgb_288 = cv2.resize(rgb_320, (LADO, LADO), interpolation=cv2.INTER_AREA)
+    if metodo == "meslouhi":
+        return rgb_288, mascara_meslouhi(rgb_288)
+    if metodo == "umbral":
+        m = cv2.resize(c3vd.mascara_reflejos(rgb_320).astype(np.uint8), (LADO, LADO),
+                       interpolation=cv2.INTER_NEAREST)
+        return rgb_288, m.astype(bool)
+    raise ValueError(f"Método de máscara desconocido: {metodo} (opciones: {METODOS_MASCARA})")
+
+
+# ---------------------------------------------------------------- videos y división
+
+def frames_rgb(zf):
+    """Rutas de los frames de color de un ZIP de C3VDv2, en orden. Solo se necesita rgb/: sirven
+    también los videos sin profundidad (deformación y cribado)."""
+    rgb = [n for n in zf.namelist() if n.startswith("rgb/") and n.lower().endswith((".png", ".jpg"))]
+    if not rgb:
+        carpetas = sorted({n.split("/")[0] for n in zf.namelist() if "/" in n})
+        raise ValueError(f"El ZIP no tiene rgb/ (carpetas encontradas: {carpetas})")
+    return sorted(rgb, key=lambda n: (c3vd._indice(n) is None, c3vd._indice(n) or 0, n))
+
+
+def segmento(video):
+    """Segmento del fantoma: el nombre sin la versión ('c2_descending_t4_v3' -> 'c2_descending_t4')."""
+    return re.sub(r"_v\d+$", "", video)
+
+
+def division_por_segmento(videos):
+    """Entrenamiento / validación / prueba por SEGMENTO: todas las versiones (v1, v2, v3...) de un
+    segmento quedan en el mismo grupo, para que el video de prueba no se parezca a los de entrenamiento.
+
+    Un segmento para prueba y uno para validación: el primero disponible de c3vd.VIDEOS_PRUEBA y de
+    c3vd.VIDEOS_VALIDACION; si no hay, el último segmento en orden alfabético. El resto, a entrenamiento.
+    Con menos de 3 segmentos no hay validación. Para otra división, usa --division.
+    """
+    videos = sorted(v for v in videos if v not in c3vd.EXCLUIR)
+    libres = sorted({segmento(v) for v in videos})
+
+    def elegir(preferidos):
+        if len(libres) < 2:          # siempre queda al menos un segmento para entrenar
+            return []
+        s = next((segmento(v) for v in preferidos if segmento(v) in libres), libres[-1])
+        libres.remove(s)
+        return [s]
+
+    prueba = elegir(c3vd.VIDEOS_PRUEBA)
+    val = elegir(c3vd.VIDEOS_VALIDACION)
+    grupo = lambda ss: [v for v in videos if segmento(v) in ss]
+    return {"entrenamiento": grupo(libres), "validacion": grupo(val), "prueba": grupo(prueba)}
+
+
+def segmentos_compartidos(div):
+    """Segmentos que aparecen en más de un grupo (fuga de información entre entrenamiento y evaluación)."""
+    por_grupo = {g: {segmento(v) for v in vs} for g, vs in div.items()}
+    return sorted((por_grupo["entrenamiento"] & (por_grupo["validacion"] | por_grupo["prueba"]))
+                  | (por_grupo["validacion"] & por_grupo["prueba"]))
+
+
+# ---------------------------------------------------------------- pseudo ground truth y métricas
 
 def hueco_pseudo(mask):
     """Máscara desplazada DESPLAZAMIENTO px a la derecha sin los reflejos reales. mask (..., H, W) bool."""
@@ -44,10 +140,16 @@ def hueco_pseudo(mask):
 
 
 def metricas_hueco(pred, real, hueco):
-    """Error del relleno dentro del hueco (píxeles con color conocido). pred, real (H,W,3) uint8."""
-    if hueco.sum() < 10:
+    """Error del relleno dentro del hueco (píxeles con color conocido). pred, real (H,W,3) uint8.
+
+    mae y psnr: sobre los píxeles del hueco (PSNRCrop de quantifyResults.ipynb).
+    ssim: mapa SSIM de la imagen completa promediado dentro del hueco (SSIMCropFull de quantifyResults).
+    """
+    if hueco.sum() < MIN_PIXELES:
         return None
     d = pred[hueco].astype(np.float64) - real[hueco].astype(np.float64)
     mse = float(np.mean(d ** 2))
+    from skimage.metrics import structural_similarity
+    _, mapa = structural_similarity(real, pred, channel_axis=2, data_range=255, full=True)
     return {"mae": float(np.mean(np.abs(d))), "psnr": float(10 * np.log10(255 ** 2 / max(mse, 1e-10))),
-            "pixeles": int(hueco.sum())}
+            "ssim": float(mapa.mean(-1)[hueco].mean()), "pixeles": int(hueco.sum())}

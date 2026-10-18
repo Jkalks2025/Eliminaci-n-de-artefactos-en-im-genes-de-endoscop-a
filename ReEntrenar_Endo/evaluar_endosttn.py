@@ -4,15 +4,15 @@
 
 Como no existen frames sin reflejos de referencia, se mide igual que en el artículo de Endo-STTN:
 la máscara de reflejos se desplaza 50 px sobre tejido sano (pseudo ground truth), el modelo rellena
-ese hueco y se compara contra el color real. Métricas dentro del hueco: MAE (0-255, menor es mejor)
-y PSNR (dB, mayor es mejor).
+ese hueco y se compara contra el color real. Métricas dentro del hueco, como en quantifyResults.ipynb
+de Endo-STTN: PSNR (dB) y SSIM (0-1), mayor es mejor; además MAE (0-255), menor es mejor.
 
 1. Validación: evalúa el original y cada checkpoint gen_XXXXX.pth; el de menor MAE es el "reentrenado".
    Lo copia a modelos/endosttn_c3vd/gen_mejor.pth (mismo formato que gen_00009.pth).
 2. Prueba: original vs reentrenado, por frame, con prueba de Wilcoxon pareada.
 
 Escribe en ReEntrenar_Endo/resultados/: validacion_por_checkpoint.csv,
-prueba_por_frame.csv y resumen.md.
+prueba_por_frame.csv y resumen.md (con la máscara y la configuración usadas).
 """
 import argparse
 import json
@@ -68,9 +68,9 @@ def main():
             modelo = le.cargar(pesos, device)
             filas = [f for v in val for f in evaluar_video(modelo, v, device, args.bloque)]
             filas_val.append({"modelo": nombre, "iteracion": it, "mae": media(filas, "mae"),
-                              "psnr": media(filas, "psnr"), "frames": len(filas)})
+                              "psnr": media(filas, "psnr"), "ssim": media(filas, "ssim"), "frames": len(filas)})
             print(f"validación {nombre:10s} (iteración {it:6d}): MAE {filas_val[-1]['mae']:.2f} | "
-                  f"PSNR {filas_val[-1]['psnr']:.2f} dB", flush=True)
+                  f"PSNR {filas_val[-1]['psnr']:.2f} dB | SSIM {filas_val[-1]['ssim']:.4f}", flush=True)
         tabla_val = pd.DataFrame(filas_val)
         tabla_val.to_csv(ec.DIR_RESULTADOS / "validacion_por_checkpoint.csv", index=False)
         reent = tabla_val[tabla_val.modelo != "original"].sort_values("mae").iloc[0]
@@ -96,31 +96,38 @@ def main():
             filas += [{"modelo": nombre, **f} for f in evaluar_video(modelo, v, device, args.bloque)]
     df = pd.DataFrame(filas)
     df.to_csv(ec.DIR_RESULTADOS / "prueba_por_frame.csv", index=False)
-    resumen = df.groupby("modelo")[["mae", "psnr"]].mean()
+    resumen = df.groupby("modelo")[["psnr", "ssim", "mae"]].mean()
 
-    t = df.pivot_table(index=["video", "frame"], columns="modelo", values="mae").dropna()
-    wil = None
-    if len(t) >= 10:
-        from scipy.stats import wilcoxon
-        wil = {"frames": len(t), "mediana_dif_mae": float((t.original - t.reentrenado).median()),
-               "p_valor": float(wilcoxon(t.original, t.reentrenado, alternative="greater").pvalue)}
+    pruebas = []
+    from scipy.stats import wilcoxon
+    for met, h1 in [("psnr", "less"), ("ssim", "less"), ("mae", "greater")]:   # H1: el reentrenado es mejor
+        t = df.pivot_table(index=["video", "frame"], columns="modelo", values=met).dropna()
+        if len(t) >= 10:
+            pruebas.append({"metrica": met, "frames": len(t),
+                            "mediana_dif (reentrenado - original)": float((t.reentrenado - t.original).median()),
+                            "p_valor": float(wilcoxon(t.original, t.reentrenado, alternative=h1).pvalue)})
 
     with open(ec.DIR_RESULTADOS / "resumen.md", "w") as f:
         f.write("# Re-entrenar Endo · Endo-STTN original vs reentrenado con C3VDv2\n\n")
         f.write(f"Videos de validación: {', '.join(val) or '(ninguno)'}  \nVideos de prueba: {', '.join(prueba)}  \n")
-        f.write(f"Reentrenado: `{nombre_mejor}.pth` (iteración {it_mejor})\n\n")
+        f.write(f"Reentrenado: `{nombre_mejor}.pth` (iteración {it_mejor})  \n")
+        prep = json.load(open(ec.DIR_DATASET / "preparacion.json"))
+        cfg = json.load(open(ec.DIR_ENTRENAMIENTO / "config.json"))
+        f.write(f"Máscaras: {prep.get('mascara', 'umbral')} · frames: 1 de cada {prep['paso']} · "
+                f"lote {cfg['trainer']['batch_size']} · lr {cfg['trainer']['lr']} · "
+                f"GPU: {cfg.get('gpu_nombre', '?')} · entrenamiento iniciado: {cfg.get('fecha', '?')}\n\n")
         f.write("## Prueba: error del relleno en el hueco desplazado (pseudo ground truth)\n\n")
-        f.write("MAE en valores de color 0-255 (menor es mejor); PSNR en dB (mayor es mejor).\n\n")
-        f.write(resumen.round(3).to_markdown() + "\n\n")
-        if wil:
-            f.write(f"Wilcoxon pareado por frame (H1: el reentrenado tiene menor MAE): {wil['frames']} frames, "
-                    f"mediana de la diferencia {wil['mediana_dif_mae']:.3f}, p = {wil['p_valor']:.4g}\n\n")
+        f.write("PSNR en dB y SSIM (0-1): mayor es mejor. MAE en valores de color 0-255: menor es mejor.\n\n")
+        f.write(resumen.round(4).to_markdown() + "\n\n")
+        if pruebas:
+            f.write("Wilcoxon pareado por frame (H1: el reentrenado es mejor):\n\n")
+            f.write(pd.DataFrame(pruebas).to_markdown(index=False, floatfmt=".4g") + "\n\n")
         if filas_val:
             f.write("## Validación por checkpoint\n\n")
-            f.write(tabla_val.round(3).to_markdown(index=False) + "\n")
-    print("\n" + resumen.round(3).to_string())
-    if wil:
-        print(f"Wilcoxon: p = {wil['p_valor']:.4g} ({wil['frames']} frames)")
+            f.write(tabla_val.round(4).to_markdown(index=False) + "\n")
+    print("\n" + resumen.round(4).to_string())
+    for p in pruebas:
+        print(f"Wilcoxon {p['metrica']}: p = {p['p_valor']:.4g} ({p['frames']} frames)")
     print(f"Resultados -> {ec.DIR_RESULTADOS}")
 
 

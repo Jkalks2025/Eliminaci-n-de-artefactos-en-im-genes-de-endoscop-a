@@ -83,8 +83,15 @@ def main():
     inicio.mkdir(parents=True, exist_ok=True)
     if not (inicio / "sttn.pth").exists():
         (inicio / "sttn.pth").symlink_to(Path(args.pesos).resolve())
-    json.dump({**cfg, "device": str(device), "pesos_iniciales": args.pesos},
-              open(ec.DIR_ENTRENAMIENTO / "config.json", "w"), indent=2)
+    import datetime
+    prep = json.load(open(ec.DIR_DATASET / "preparacion.json"))
+    bitacora = {"fecha": datetime.datetime.now().isoformat(timespec="minutes"),
+                "gpu_nombre": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu",
+                "torch": torch.__version__, "pesos_iniciales": args.pesos,
+                "mascara": prep.get("mascara"), "paso": prep["paso"], "division": prep["division"]}
+    if not (ec.DIR_ENTRENAMIENTO / "latest.ckpt").exists():   # al continuar se conserva el de la 1a vez
+        json.dump({**cfg, "device": str(device), **bitacora}, open(ec.DIR_ENTRENAMIENTO / "config.json", "w"), indent=2)
+    print("Bitácora:", {k: bitacora[k] for k in ["fecha", "gpu_nombre", "mascara"]}, flush=True)
 
     trozos = json.load(open(ec.DIR_DATASET / "train.json"))
     print(f"Endo-STTN: {len(trozos)} trozos ({sum(trozos.values())} frames) | lote {args.lote} | "

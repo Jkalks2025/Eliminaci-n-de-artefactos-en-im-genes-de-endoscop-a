@@ -11,6 +11,7 @@ scipy
 tabulate
 gdown
 tensorboardX   # entrenamiento de Endo-STTN (ReEntrenar_Endo)
+scikit-image   # SSIM en la evaluación de ReEntrenar_Endo
 # notebooks
 notebook
 ipykernel

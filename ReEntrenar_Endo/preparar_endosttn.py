@@ -1,11 +1,12 @@
 """Re-entrenar Endo, paso 1: arma con C3VDv2 un dataset en el formato que espera Endo-STTN para entrenar.
 
     python ReEntrenar_Endo/preparar_endosttn.py
-    python ReEntrenar_Endo/preparar_endosttn.py --paso 2 --division mi_division.json
+    python ReEntrenar_Endo/preparar_endosttn.py --mascara umbral --paso 2 --division mi_division.json
 
-Lee los ZIPs de datos/raw/ y, para cada frame, hace lo mismo que el Avance 2 (320x256 y máscara de
-reflejos por umbral de brillo, codigo/c3vd.py) y lo lleva a 288x288 como en la inferencia de
-Endo-STTN. Así el modelo reentrenado ve el mismo tipo de imagen y de máscara con que se usará.
+Lee los ZIPs de datos/raw/ (solo hace falta rgb/, así que sirven también videos sin profundidad),
+lleva cada frame a 288x288 como en la inferencia de Endo-STTN y calcula su máscara de reflejos:
+    --mascara meslouhi  El Meslouhi et al. (2011), el método de los autores de Endo-STTN (por defecto)
+    --mascara umbral    brillo >= 230, el del Avance 2 (también marca residuos muy claros)
 
 Salida en datos/endosttn_c3vd/:
     JPEGImages/<video>__<k>.zip   frames (PNG) de los videos de entrenamiento, en trozos de --trozo frames
@@ -14,9 +15,10 @@ Salida en datos/endosttn_c3vd/:
     eval/<video>/rgb.npy, mask.npy   videos de validación y prueba (288x288), para evaluar_endosttn.py
     division.json, preparacion.json
 
-La división es por video y por defecto es la misma del Avance 2 (datos/c3vd/division.json), así que
-Endo-STTN tampoco ve los videos de prueba del estimador de profundidad. Endo-STTN toma clips de 5 frames
-de un mismo "video" del dataset; los videos se parten en trozos para que cada época tenga varios lotes.
+La división es por SEGMENTO del fantoma (endosttn_c3vd.division_por_segmento): todas las versiones
+v1, v2, v3 de un segmento van al mismo grupo, para que el video de prueba no se parezca a los de
+entrenamiento. Endo-STTN toma clips de 5 frames de un mismo "video" del dataset; los videos de
+entrenamiento se parten en trozos para que cada época tenga varios lotes.
 """
 import argparse
 import json
@@ -30,16 +32,15 @@ import endosttn_c3vd as ec
 from endosttn_c3vd import c3vd
 
 
-def leer_video(ruta, paso, max_frames):
+def leer_video(ruta, paso, max_frames, metodo):
     """Frames y máscaras de un ZIP de C3VDv2, a 288x288 (uint8, bool)."""
     rgbs, masks = [], []
     with zipfile.ZipFile(ruta) as zf:
-        pares = c3vd.listar_pares(zf)[::paso]
+        rutas = ec.frames_rgb(zf)[::paso]
         if max_frames:
-            pares = pares[:max_frames]
-        for _, r, _ in pares:
-            rgb = cv2.resize(c3vd.leer_rgb(zf, r), (c3vd.ANCHO, c3vd.ALTO), interpolation=cv2.INTER_AREA)
-            rgb, mask = ec.a_288(rgb, c3vd.mascara_reflejos(rgb))
+            rutas = rutas[:max_frames]
+        for r in rutas:
+            rgb, mask = ec.frame_y_mascara(c3vd.leer_rgb(zf, r), metodo)
             rgbs.append(rgb)
             masks.append(mask)
     return np.stack(rgbs), np.stack(masks)
@@ -58,32 +59,35 @@ def main():
     ap.add_argument("--paso", type=int, default=1, help="tomar 1 de cada N frames (1 = todos)")
     ap.add_argument("--max-frames", type=int, default=0, help="máximo de frames por video (0 = sin límite)")
     ap.add_argument("--trozo", type=int, default=30, help="frames por trozo de entrenamiento")
-    ap.add_argument("--division", help="JSON con entrenamiento/validacion/prueba (por defecto, la del Avance 2)")
+    ap.add_argument("--mascara", choices=ec.METODOS_MASCARA, default="meslouhi", help="detección de reflejos")
+    ap.add_argument("--division", help="JSON con entrenamiento/validacion/prueba (por defecto, por segmento)")
     ap.add_argument("--rehacer", action="store_true", help="borra lo preparado y vuelve a empezar")
     args = ap.parse_args()
 
     zips = {z.stem: z for z in sorted(c3vd.DIR_RAW.glob("*.zip"))}
     if not zips:
         raise SystemExit(f"No hay ZIPs de C3VDv2 en {c3vd.DIR_RAW}.")
-    if args.division:
-        div = json.load(open(args.division))
-    elif (c3vd.DIR_DATOS / "division.json").exists():
-        div = json.load(open(c3vd.DIR_DATOS / "division.json"))
-        print("División del Avance 2:", c3vd.DIR_DATOS / "division.json")
-    else:
-        div = c3vd.division(list(zips))
+    div = json.load(open(args.division)) if args.division else ec.division_por_segmento(list(zips))
+    for grupo, vs in div.items():
+        print(f"{grupo:14s}: {len(vs)} videos, segmentos {sorted({ec.segmento(v) for v in vs})}")
+    compartidos = ec.segmentos_compartidos(div)
+    if compartidos:
+        print(f"AVISO: estos segmentos están en más de un grupo (la prueba se parecerá al entrenamiento): {compartidos}")
     faltan = [v for g in div.values() for v in g if v not in zips]
     if faltan:
         raise SystemExit(f"Estos videos de la división no están en {c3vd.DIR_RAW}: {faltan}")
     if not div["entrenamiento"] or not (div["validacion"] or div["prueba"]):
-        raise SystemExit(f"Hacen falta videos de entrenamiento y de validación o prueba: {div}")
+        raise SystemExit(f"Hacen falta videos de entrenamiento y de validación o prueba: {div}\n"
+                         "Con la división por segmento se necesitan al menos 2 segmentos distintos en datos/raw/ "
+                         "(mejor 3 o más); o usa --division.")
 
     if args.rehacer and ec.DIR_DATASET.exists():
         shutil.rmtree(ec.DIR_DATASET)
     ec.DIR_DATASET.mkdir(parents=True, exist_ok=True)
     if (ec.DIR_DATASET / "preparacion.json").exists():
         previo = json.load(open(ec.DIR_DATASET / "preparacion.json"))
-        if previo["division"] == div and previo["paso"] == args.paso and previo["max_frames"] == args.max_frames:
+        if (previo["division"], previo["paso"], previo["max_frames"], previo.get("mascara")) == \
+                (div, args.paso, args.max_frames, args.mascara):
             print(f"Ya preparado en {ec.DIR_DATASET} (usa --rehacer para repetirlo)")
             return
         raise SystemExit(f"{ec.DIR_DATASET} se preparó con otra división u otros parámetros: usa --rehacer")
@@ -91,7 +95,7 @@ def main():
     trozos, resumen = {}, {}
     for grupo in ["entrenamiento", "validacion", "prueba"]:
         for v in div[grupo]:
-            rgb, mask = leer_video(zips[v], args.paso, args.max_frames)
+            rgb, mask = leer_video(zips[v], args.paso, args.max_frames, args.mascara)
             resumen[v] = {"grupo": grupo, "frames": len(rgb), "reflejos_pct": round(100 * float(mask.mean()), 2)}
             if grupo == "entrenamiento":
                 inicios = list(range(0, len(rgb), args.trozo))
@@ -111,7 +115,8 @@ def main():
 
     json.dump(trozos, open(ec.DIR_DATASET / "train.json", "w"), indent=1)
     json.dump(div, open(ec.DIR_DATASET / "division.json", "w"), indent=2)
-    json.dump({"paso": args.paso, "max_frames": args.max_frames, "trozo": args.trozo, "division": div,
+    json.dump({"mascara": args.mascara, "paso": args.paso, "max_frames": args.max_frames, "trozo": args.trozo,
+               "division": div, "segmentos_compartidos": compartidos,
                "videos": resumen}, open(ec.DIR_DATASET / "preparacion.json", "w"), indent=2)
     print(f"\n{len(trozos)} trozos de entrenamiento ({sum(trozos.values())} frames) -> {ec.DIR_DATASET}")
 
