@@ -6,7 +6,10 @@
 Lee los ZIPs de datos/raw/ (solo hace falta rgb/, así que sirven también videos sin profundidad),
 lleva cada frame a 288x288 como en la inferencia de Endo-STTN y calcula su máscara de reflejos:
     --mascara meslouhi  El Meslouhi et al. (2011), el método de los autores de Endo-STTN (por defecto)
+    --mascara hsv       muy brillante y casi sin color (criterio del Avance 1)
+    --mascara arnold    versión simplificada de Arnold et al. (2010), específico de endoscopía
     --mascara umbral    brillo >= 230, el del Avance 2 (también marca residuos muy claros)
+Para elegir, comparar_mascaras.py los mide contra una referencia tomada de diffuse/ de C3VDv2.
 
 Salida en datos/endosttn_c3vd/:
     JPEGImages/<video>__<k>.zip   frames (PNG) de los videos de entrenamiento, en trozos de --trozo frames

@@ -29,7 +29,7 @@ DIR_RESULTADOS = Path(os.environ.get("EQUIPO19_RESULTADOS_31", AQUI / "resultado
 LADO = 288            # resolución de Endo-STTN
 DESPLAZAMIENTO = 50   # px a 288x288, como Endo-STTN/core/dataset.py
 MIN_PIXELES = 30      # frames con un hueco más chico no se evalúan (como quantifyResults.ipynb)
-METODOS_MASCARA = ["meslouhi", "umbral"]
+METODOS_MASCARA = ["meslouhi", "hsv", "arnold", "umbral"]
 
 
 # ---------------------------------------------------------------- máscaras de reflejos
@@ -64,17 +64,59 @@ def mascara_meslouhi(rgb):
     return cv2.dilate(m, rombo).astype(bool)
 
 
+def _dilatar_1px(m):
+    return cv2.dilate(m.astype(np.uint8), np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]], np.uint8)).astype(bool)
+
+
+def mascara_hsv(rgb, v_min=235, s_max=40):
+    """Muy brillante Y casi sin color: V >= v_min y S <= s_max (HSV de OpenCV, 0-255), dilatada 1 px.
+
+    Es el criterio de 'frac_especular' del Avance 1. Los residuos amarillos o marrones tienen color
+    (S alta), así que no se marcan aunque sean claros.
+    """
+    hsv = cv2.cvtColor(rgb, cv2.COLOR_RGB2HSV)
+    return _dilatar_1px((hsv[..., 2] >= v_min) & (hsv[..., 1] <= s_max))
+
+
+def mascara_arnold(rgb, t_abs=240, t_cand=200, t_rel=1.2, mediana=31):
+    """Versión simplificada del método de Arnold et al. (2010) para endoscopía. Dos detectores:
+
+    1. Absoluto: píxeles muy brillantes en gris o en los canales G y B, con umbrales corregidos por el
+       balance de color de la imagen (cociente entre percentiles 95 de cada canal y del gris).
+    2. Relativo: se estima una imagen "sin reflejos" rellenando los candidatos (umbral más bajo) y
+       aplicando un filtro de mediana grande; es reflejo lo que es t_rel veces más brillante que esa
+       imagen en algún canal. Detecta reflejos tenues que no llegan al umbral absoluto.
+    El resultado se dilata 1 px. Los parámetros son los de uso común, no los del artículo exactamente.
+    """
+    img = rgb.astype(np.float32)
+    gris = img @ np.array([0.2989, 0.5870, 0.1140], np.float32)
+    p95 = lambda c: max(float(np.percentile(c, 95)), 1.0)
+    r_g, r_b = p95(img[..., 1]) / p95(gris), p95(img[..., 2]) / p95(gris)
+    sobre = lambda t: (img[..., 1] > r_g * t) | (img[..., 2] > r_b * t) | (gris > t)
+    absoluto = sobre(t_abs)
+    candidatos = cv2.dilate(sobre(t_cand).astype(np.uint8), cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7)))
+    sin_reflejos = cv2.medianBlur(cv2.inpaint(rgb, candidatos, 5, cv2.INPAINT_TELEA), mediana).astype(np.float32)
+    relativo = ((img / (sin_reflejos + 1)).max(-1) > t_rel) & (gris > t_cand * 0.75)
+    return _dilatar_1px(absoluto | relativo)
+
+
+def frame_288(rgb):
+    """Frame original de C3VDv2 a 288x288, pasando por 320x256 como en el Avance 2 y en la inferencia."""
+    rgb_320 = cv2.resize(rgb, (c3vd.ANCHO, c3vd.ALTO), interpolation=cv2.INTER_AREA)
+    return cv2.resize(rgb_320, (LADO, LADO), interpolation=cv2.INTER_AREA)
+
+
 def frame_y_mascara(rgb, metodo):
     """Frame original de C3VDv2 -> frame y máscara a 288x288 (uint8, bool).
 
     El frame pasa primero a 320x256 y luego a 288x288, igual que en el Avance 2 y en la inferencia.
-    - meslouhi: la máscara se calcula a 288x288, como hicieron los autores.
+    - meslouhi, hsv, arnold: la máscara se calcula a 288x288 (meslouhi, como hicieron los autores).
     - umbral: la del Avance 2 (brillo >= 230, dilatada 3 px a 320x256), llevada a 288x288.
     """
     rgb_320 = cv2.resize(rgb, (c3vd.ANCHO, c3vd.ALTO), interpolation=cv2.INTER_AREA)
     rgb_288 = cv2.resize(rgb_320, (LADO, LADO), interpolation=cv2.INTER_AREA)
-    if metodo == "meslouhi":
-        return rgb_288, mascara_meslouhi(rgb_288)
+    if metodo in ("meslouhi", "hsv", "arnold"):
+        return rgb_288, {"meslouhi": mascara_meslouhi, "hsv": mascara_hsv, "arnold": mascara_arnold}[metodo](rgb_288)
     if metodo == "umbral":
         m = cv2.resize(c3vd.mascara_reflejos(rgb_320).astype(np.uint8), (LADO, LADO),
                        interpolation=cv2.INTER_NEAREST)

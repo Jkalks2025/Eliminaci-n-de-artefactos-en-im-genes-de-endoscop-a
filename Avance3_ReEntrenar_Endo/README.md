@@ -53,6 +53,15 @@ A diferencia del umbral de brillo, no marca los residuos amarillos muy claros, p
 y poco saturado. Por eso el notebook compara los dos métodos y muestra **50 máscaras al azar** para revisarlas a ojo
 (`resultados/revision_mascaras.png`) antes de entrenar. El método final se decide con el Dr. Ricardo.
 
+**Otros métodos y cómo elegir.** Además de El Meslouhi y del umbral, el código incluye la **regla HSV** del Avance 1
+(muy brillante y casi sin color) y una **versión simplificada de Arnold et al. (2010)**, específica de endoscopía
+(detector absoluto y relativo). El notebook
+[`Equipo19_Avance3_Comparar_Mascaras_colab.ipynb`](notebooks/Equipo19_Avance3_Comparar_Mascaras_colab.ipynb)
+explica el marco teórico de cada uno (modelo de reflexión dicromático) y los **mide contra una referencia física**:
+los videos registrados de C3VDv2 traen `diffuse/`, un render del modelo 3D sin componente especular, así que un
+píxel mucho más brillante que lo que predice ese render es un reflejo. Reporta precisión, sensibilidad, F1 e IoU por
+método, separando videos limpios (v1, v2) de videos con residuos (v3), y sugiere un método para `MASCARA`.
+
 ## 3. Configuración
 
 Se usa el entrenamiento original (`Endo-STTN/core/trainer.py`), **sin modificarlo**. Solo cambia la configuración:
@@ -109,7 +118,7 @@ python Avance3_ReEntrenar_Endo/entrenar_endosttn.py         # modelos/endosttn_c
 python Avance3_ReEntrenar_Endo/evaluar_endosttn.py          # resultados/ y gen_mejor.pth
 ```
 
-Opciones útiles: `--mascara umbral` (método del Avance 2), `--iteraciones 20000`, `--lote 2` (si falta memoria),
+Opciones útiles: `--mascara hsv|arnold|umbral` (otros métodos de máscara), `--iteraciones 20000`, `--lote 2` (si falta memoria),
 `--paso 2` (menos frames), `--division mi_division.json` (otra división de videos).
 
 ## 5. Experimentos
@@ -117,7 +126,8 @@ Opciones útiles: `--mascara umbral` (método del Avance 2), `--iteraciones 2000
 | | Experimento | Resultado |
 |---|---|---|
 | ✅ | Prueba de punta a punta con datos sintéticos (scripts y notebook) | Corre; reanuda tras una interrupción |
-| ⬜ | Revisión de las 50 máscaras y elección del método con el Dr. Ricardo | *pendiente* |
+| ✅ | Métodos de máscara HSV y Arnold, y comparación contra `diffuse/` (probado con datos sintéticos) | Implementado |
+| ⬜ | Correr la comparación de máscaras con C3VDv2, revisar las 50 máscaras y elegir el método con el Dr. Ricardo | *pendiente* |
 | ⬜ | Subir a `raw/` videos de más segmentos del colon | *pendiente* |
 | ⬜ | Reentrenamiento con C3VDv2 (10 000 iteraciones) y evaluación en el video de prueba | *pendiente* |
 | ⬜ | Inspección visual del relleno original vs reentrenado | *pendiente* |
@@ -143,7 +153,9 @@ Opciones útiles: `--mascara umbral` (método del Avance 2), `--iteraciones 2000
 | [`preparar_endosttn.py`](preparar_endosttn.py) | Paso 1: frames y máscaras de C3VDv2 en el formato de Endo-STTN |
 | [`entrenar_endosttn.py`](entrenar_endosttn.py) | Paso 2: entrenamiento original de Endo-STTN con la configuración de C3VDv2 |
 | [`evaluar_endosttn.py`](evaluar_endosttn.py) | Paso 3: elección del checkpoint y comparación original vs reentrenado |
-| [`endosttn_c3vd.py`](endosttn_c3vd.py) | Máscaras (El Meslouhi y umbral), división por segmento, hueco desplazado y métricas |
+| [`endosttn_c3vd.py`](endosttn_c3vd.py) | Máscaras (El Meslouhi, HSV, Arnold y umbral), división por segmento, hueco desplazado y métricas |
+| [`comparar_mascaras.py`](comparar_mascaras.py) | Mide los métodos de máscara contra la referencia de `diffuse/` de C3VDv2 |
+| [`notebooks/Equipo19_Avance3_Comparar_Mascaras_colab.ipynb`](notebooks/Equipo19_Avance3_Comparar_Mascaras_colab.ipynb) | Marco teórico de cada método de máscara y su comparación (Colab, sin GPU) |
 | [`notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb) | Flujo completo en Colab con figuras |
 | [`resultados/`](resultados/) | Resultados de cada corrida |
 
@@ -162,6 +174,9 @@ Correspondencia con los pasos 2 a 5 del *Checklist del equipo: re-entrenar Endo-
 
 - R. Daher, F. Vasconcelos y D. Stoyanov, *A Temporal Learning Approach to Inpainting Endoscopic Specularities and
   Its Effect on Image Correspondence*, Medical Image Analysis, 2023.
+- M. Arnold, A. Ghosh, S. Ameling y G. Lacey, *Automatic segmentation and inpainting of specular highlights for
+  endoscopic imaging*, EURASIP Journal on Image and Video Processing, 2010.
+- S. A. Shafer, *Using color to separate reflection components*, Color Research & Application, 1985.
 - A. El Meslouhi, M. Kardouchi, H. Allali, T. Gadi y Y. A. Benkaddour, *Automatic detection and inpainting of specular
   reflections for colposcopic images*, Central European Journal of Computer Science, 2011.
 
