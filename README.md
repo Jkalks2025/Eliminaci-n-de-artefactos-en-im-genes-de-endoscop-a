@@ -16,6 +16,7 @@ monocular** (AF-SfMLearner), usando la profundidad real de **C3VDv2** (colonosco
 | 1 | Exploración de datos de C3VDv2 | Completado | [`Avance1_ExploracionDatos/README.md`](Avance1_ExploracionDatos/README.md) · [notebook](Avance1_ExploracionDatos/Exploracion_de_Datos_Equipo19.ipynb) |
 | 2 | Endo-STTN limpia los frames → ajuste fino del estimador de profundidad | Prueba 1 con C3VDv2 completada ([resultados](Avance2_DeepEstimator_EndoSTTN/resultados/prueba_1/README.md)) | [`Avance2_DeepEstimator_EndoSTTN/README.md`](Avance2_DeepEstimator_EndoSTTN/README.md) · [reporte PDF](Avance2_DeepEstimator_EndoSTTN/Avance2__Equipo19.pdf) |
 | 3 | Endo-STTN y el estimador de profundidad entrenados juntos (modelo E) | Implementado y probado con datos sintéticos; falta correrlo con C3VDv2 | [`Avance3_EntrenamientoConjunto/README.md`](Avance3_EntrenamientoConjunto/README.md) · [notebook Colab](Avance3_EntrenamientoConjunto/notebooks/Equipo19_Avance3_colab.ipynb) |
+| 3.1 | Reentrenamiento de Endo-STTN con C3VDv2 | Implementado y probado con datos sintéticos; falta correrlo con C3VDv2 | [`Avance3_1_ReentrenamientoEndoSTTN/README.md`](Avance3_1_ReentrenamientoEndoSTTN/README.md) · [notebook Colab](Avance3_1_ReentrenamientoEndoSTTN/notebooks/Equipo19_Avance3_1_colab.ipynb) |
 
 Cada avance tiene su propio documento con objetivo, marco teórico, metodología, resultados y referencias.
 
@@ -80,7 +81,9 @@ codigo/                           código del Equipo 19
 └── prueba_rapida.py              prueba de punta a punta con datos sintéticos
 Avance1_ExploracionDatos/         exploración de datos de C3VDv2 (notebook ejecutado y resumen)
 Avance2_DeepEstimator_EndoSTTN/   documento del Avance 2, figuras, notebooks y resultados
-Endo-STTN/                        Endo-STTN original, sin modificaciones (se usa congelado)
+Avance3_EntrenamientoConjunto/    Endo-STTN y el estimador entrenados juntos (modelo E)
+Avance3_1_ReentrenamientoEndoSTTN/ reentrenamiento de Endo-STTN con C3VDv2 (scripts, notebook y resultados)
+Endo-STTN/                        Endo-STTN original, sin modificaciones (congelado en el Avance 2; el 3.1 lo reentrena con su propio código)
 datos/raw/                        aquí van los ZIPs de C3VDv2 (no se suben a git)
 externos/, modelos/, datos/c3vd/  (no están en git) AF-SfMLearner, pesos, estimadores ajustados y datos preparados
 ```
