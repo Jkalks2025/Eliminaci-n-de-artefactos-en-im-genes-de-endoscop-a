@@ -16,9 +16,12 @@ monocular** (AF-SfMLearner), usando la profundidad real de **C3VDv2** (colonosco
 | 1 | Exploración de datos de C3VDv2 | Completado | [`Avance1_ExploracionDatos/README.md`](Avance1_ExploracionDatos/README.md) · [notebook](Avance1_ExploracionDatos/Exploracion_de_Datos_Equipo19.ipynb) |
 | 2 | Endo-STTN limpia los frames → ajuste fino del estimador de profundidad | Prueba 1 con C3VDv2 completada ([resultados](Avance2_DeepEstimator_EndoSTTN/resultados/prueba_1/README.md)) | [`Avance2_DeepEstimator_EndoSTTN/README.md`](Avance2_DeepEstimator_EndoSTTN/README.md) · [reporte PDF](Avance2_DeepEstimator_EndoSTTN/Avance2__Equipo19.pdf) |
 | 3 | Reentrenamiento de Endo-STTN con C3VDv2 | Implementado y probado con datos sintéticos; falta correrlo con C3VDv2 | [`Avance3_ReEntrenar_Endo/README.md`](Avance3_ReEntrenar_Endo/README.md) · [notebook Colab](Avance3_ReEntrenar_Endo/notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb) |
-| 4 | Entrenamiento end-to-end: Endo-STTN y el estimador de profundidad juntos (modelo E) | Implementado y probado con datos sintéticos; falta correrlo con C3VDv2 | [`Entrenamiento_end_to_end/README.md`](Entrenamiento_end_to_end/README.md) · [notebook Colab](Entrenamiento_end_to_end/notebooks/Equipo19_Avance4_colab.ipynb) |
 
 Cada avance tiene su propio documento con objetivo, marco teórico, metodología, resultados y referencias.
+
+**Experimento aparte:** [`Entrenamiento_end_to_end/`](Entrenamiento_end_to_end/README.md) — Endo-STTN y el estimador
+de profundidad entrenados juntos (modelo E). Implementado y probado con datos sintéticos; en pausa hasta terminar el
+Avance 3 ([notebook Colab](Entrenamiento_end_to_end/notebooks/Equipo19_Entrenamiento_end_to_end_colab.ipynb)).
 
 ## Cómo correrlo
 

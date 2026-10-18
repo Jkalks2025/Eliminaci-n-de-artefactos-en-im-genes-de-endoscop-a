@@ -1,7 +1,7 @@
 # Avance 3 · Re-entrenar Endo-STTN con C3VDv2
 
 **Equipo 19** · Continúa el [Avance 2](../Avance2_DeepEstimator_EndoSTTN/README.md). El
-[Avance 4](../Entrenamiento_end_to_end/README.md) (entrenamiento conjunto) queda en pausa hasta terminar este.
+[entrenamiento end-to-end](../Entrenamiento_end_to_end/README.md) queda en pausa hasta terminar este.
 
 > **Estado:** implementado y probado de punta a punta con datos sintéticos (preparar, entrenar, continuar un
 > entrenamiento interrumpido, evaluar y el notebook). Falta correrlo con C3VDv2 en Colab con GPU.
@@ -14,7 +14,7 @@ HyperKvasir. C3VDv2 son modelos de silicona, con otra textura, otro color y otro
 **reentrena con frames de C3VDv2** usando su mismo procedimiento de entrenamiento, para que rellene mejor los
 reflejos de este dominio.
 
-A diferencia del Avance 4 (entrenamiento conjunto), aquí Endo-STTN aprende **solo a rellenar**: no recibe ninguna señal del estimador de
+A diferencia del [entrenamiento end-to-end](../Entrenamiento_end_to_end/README.md), aquí Endo-STTN aprende **solo a rellenar**: no recibe ninguna señal del estimador de
 profundidad. Así se puede medir por separado si un mejor relleno ayuda después a la profundidad (paso 6 del checklist).
 
 **Hipótesis.** El Endo-STTN reentrenado rellena el tejido de C3VDv2 con menos error que el original, en videos que

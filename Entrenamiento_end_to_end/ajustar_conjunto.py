@@ -1,4 +1,4 @@
-"""Avance 4: ajuste de punta a punta de Endo-STTN + AF-SfMLearner (modelo E).
+"""Entrenamiento end-to-end: ajuste de punta a punta de Endo-STTN + AF-SfMLearner (modelo E).
 
     python Entrenamiento_end_to_end/ajustar_conjunto.py
     python Entrenamiento_end_to_end/ajustar_conjunto.py --sttn-capas transformer --peso-hueco 1 --peso-ancla 0.5
