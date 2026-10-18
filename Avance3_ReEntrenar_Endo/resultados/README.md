@@ -1,4 +1,4 @@
-# Resultados · Re-entrenar Endo
+# Resultados del Avance 3 · Re-entrenar Endo-STTN
 
 | Prueba | Fecha | Resumen |
 |---|---|---|

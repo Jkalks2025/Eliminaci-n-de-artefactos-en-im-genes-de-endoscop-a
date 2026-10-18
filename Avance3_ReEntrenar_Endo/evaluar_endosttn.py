@@ -1,6 +1,6 @@
-"""Re-entrenar Endo, paso 3: compara el Endo-STTN original contra el reentrenado con C3VDv2.
+"""Avance 3 (re-entrenar Endo-STTN), paso 3: compara el Endo-STTN original contra el reentrenado con C3VDv2.
 
-    python ReEntrenar_Endo/evaluar_endosttn.py
+    python Avance3_ReEntrenar_Endo/evaluar_endosttn.py
 
 Como no existen frames sin reflejos de referencia, se mide igual que en el artículo de Endo-STTN:
 la máscara de reflejos se desplaza 50 px sobre tejido sano (pseudo ground truth), el modelo rellena
@@ -11,7 +11,7 @@ de Endo-STTN: PSNR (dB) y SSIM (0-1), mayor es mejor; además MAE (0-255), menor
    Lo copia a modelos/endosttn_c3vd/gen_mejor.pth (mismo formato que gen_00009.pth).
 2. Prueba: original vs reentrenado, por frame, con prueba de Wilcoxon pareada.
 
-Escribe en ReEntrenar_Endo/resultados/: validacion_por_checkpoint.csv,
+Escribe en Avance3_ReEntrenar_Endo/resultados/: validacion_por_checkpoint.csv,
 prueba_por_frame.csv y resumen.md (con la máscara y la configuración usadas).
 """
 import argparse
@@ -108,7 +108,7 @@ def main():
                             "p_valor": float(wilcoxon(t.original, t.reentrenado, alternative=h1).pvalue)})
 
     with open(ec.DIR_RESULTADOS / "resumen.md", "w") as f:
-        f.write("# Re-entrenar Endo · Endo-STTN original vs reentrenado con C3VDv2\n\n")
+        f.write("# Avance 3 · Endo-STTN original vs reentrenado con C3VDv2\n\n")
         f.write(f"Videos de validación: {', '.join(val) or '(ninguno)'}  \nVideos de prueba: {', '.join(prueba)}  \n")
         f.write(f"Reentrenado: `{nombre_mejor}.pth` (iteración {it_mejor})  \n")
         prep = json.load(open(ec.DIR_DATASET / "preparacion.json"))

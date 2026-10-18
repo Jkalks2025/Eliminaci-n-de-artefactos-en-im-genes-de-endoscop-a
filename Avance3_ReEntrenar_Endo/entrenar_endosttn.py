@@ -1,7 +1,7 @@
-"""Re-entrenar Endo, paso 2: reentrena Endo-STTN con C3VDv2, partiendo del modelo publicado (gen_00009.pth).
+"""Avance 3 (re-entrenar Endo-STTN), paso 2: reentrena Endo-STTN con C3VDv2, partiendo del modelo publicado (gen_00009.pth).
 
-    python ReEntrenar_Endo/entrenar_endosttn.py
-    python ReEntrenar_Endo/entrenar_endosttn.py --iteraciones 20000 --lote 8
+    python Avance3_ReEntrenar_Endo/entrenar_endosttn.py
+    python Avance3_ReEntrenar_Endo/entrenar_endosttn.py --iteraciones 20000 --lote 8
 
 Usa el entrenamiento original de Endo-STTN sin modificarlo (Endo-STTN/core/trainer.py y
 core/dataset.py): generador + discriminador con pérdida L1 en el hueco desplazado (pseudo ground

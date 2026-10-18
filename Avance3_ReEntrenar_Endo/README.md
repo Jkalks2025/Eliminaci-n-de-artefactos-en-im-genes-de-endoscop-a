@@ -1,7 +1,7 @@
-# Re-entrenar Endo · Endo-STTN reentrenado con C3VDv2 (Avance 3.1)
+# Avance 3 · Re-entrenar Endo-STTN con C3VDv2
 
-**Equipo 19** · Continúa el [Avance 2](../Avance2_DeepEstimator_EndoSTTN/README.md), en paralelo al
-[Avance 3](../Avance3_EntrenamientoConjunto/README.md).
+**Equipo 19** · Continúa el [Avance 2](../Avance2_DeepEstimator_EndoSTTN/README.md). El
+[Avance 4](../Avance4_EntrenamientoConjunto/README.md) (entrenamiento conjunto) queda en pausa hasta terminar este.
 
 > **Estado:** implementado y probado de punta a punta con datos sintéticos (preparar, entrenar, continuar un
 > entrenamiento interrumpido, evaluar y el notebook). Falta correrlo con C3VDv2 en Colab con GPU.
@@ -14,8 +14,8 @@ HyperKvasir. C3VDv2 son modelos de silicona, con otra textura, otro color y otro
 **reentrena con frames de C3VDv2** usando su mismo procedimiento de entrenamiento, para que rellene mejor los
 reflejos de este dominio.
 
-A diferencia del Avance 3, aquí Endo-STTN aprende **solo a rellenar**: no recibe ninguna señal del estimador de
-profundidad. Así se puede medir por separado si un mejor relleno ayuda después a la profundidad (Avance 3.2).
+A diferencia del Avance 4 (entrenamiento conjunto), aquí Endo-STTN aprende **solo a rellenar**: no recibe ninguna señal del estimador de
+profundidad. Así se puede medir por separado si un mejor relleno ayuda después a la profundidad (paso 6 del checklist).
 
 **Hipótesis.** El Endo-STTN reentrenado rellena el tejido de C3VDv2 con menos error que el original, en videos que
 no vio al entrenar.
@@ -95,7 +95,7 @@ No se usa ese notebook directamente porque sus funciones de scikit-image (`compa
 
 ## 4. Cómo correrlo
 
-**En Google Colab (recomendado):** [`notebooks/Equipo19_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_ReEntrenar_Endo_colab.ipynb).
+**En Google Colab (recomendado):** [`notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb).
 Usa `MyDrive/Equipo19/raw/` (los mismos ZIPs del Avance 2) y toma la división de `c3vd_preparado.zip`. Todo lo
 que produce queda en `MyDrive/Equipo19/re_entrenar_endo/`, y si Colab se desconecta, al volver a correrlo continúa desde el
 último checkpoint.
@@ -104,9 +104,9 @@ que produce queda en `MyDrive/Equipo19/re_entrenar_endo/`, y si Colab se descone
 
 ```bash
 pip install tensorboardX                                              # lo usa el entrenamiento de Endo-STTN
-python ReEntrenar_Endo/preparar_endosttn.py         # datos/endosttn_c3vd/
-python ReEntrenar_Endo/entrenar_endosttn.py         # modelos/endosttn_c3vd/gen_XXXXX.pth
-python ReEntrenar_Endo/evaluar_endosttn.py          # resultados/ y gen_mejor.pth
+python Avance3_ReEntrenar_Endo/preparar_endosttn.py         # datos/endosttn_c3vd/
+python Avance3_ReEntrenar_Endo/entrenar_endosttn.py         # modelos/endosttn_c3vd/gen_XXXXX.pth
+python Avance3_ReEntrenar_Endo/evaluar_endosttn.py          # resultados/ y gen_mejor.pth
 ```
 
 Opciones útiles: `--mascara umbral` (método del Avance 2), `--iteraciones 20000`, `--lote 2` (si falta memoria),
@@ -121,7 +121,7 @@ Opciones útiles: `--mascara umbral` (método del Avance 2), `--iteraciones 2000
 | ⬜ | Subir a `raw/` videos de más segmentos del colon | *pendiente* |
 | ⬜ | Reentrenamiento con C3VDv2 (10 000 iteraciones) y evaluación en el video de prueba | *pendiente* |
 | ⬜ | Inspección visual del relleno original vs reentrenado | *pendiente* |
-| ⬜ | Avance 3.2: limpiar los frames con `gen_mejor.pth` y ajustar el estimador de profundidad (comparar con D) | *pendiente* |
+| ⬜ | Paso 6 del checklist: limpiar los frames con `gen_mejor.pth` y ajustar el estimador de profundidad (comparar con D) | *pendiente* |
 
 ## 6. Limitaciones
 
@@ -144,7 +144,7 @@ Opciones útiles: `--mascara umbral` (método del Avance 2), `--iteraciones 2000
 | [`entrenar_endosttn.py`](entrenar_endosttn.py) | Paso 2: entrenamiento original de Endo-STTN con la configuración de C3VDv2 |
 | [`evaluar_endosttn.py`](evaluar_endosttn.py) | Paso 3: elección del checkpoint y comparación original vs reentrenado |
 | [`endosttn_c3vd.py`](endosttn_c3vd.py) | Máscaras (El Meslouhi y umbral), división por segmento, hueco desplazado y métricas |
-| [`notebooks/Equipo19_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_ReEntrenar_Endo_colab.ipynb) | Flujo completo en Colab con figuras |
+| [`notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb) | Flujo completo en Colab con figuras |
 | [`resultados/`](resultados/) | Resultados de cada corrida |
 
 ## Checklist del equipo

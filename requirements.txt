@@ -10,8 +10,8 @@ pandas
 scipy
 tabulate
 gdown
-tensorboardX   # entrenamiento de Endo-STTN (ReEntrenar_Endo)
-scikit-image   # SSIM en la evaluación de ReEntrenar_Endo
+tensorboardX   # entrenamiento de Endo-STTN (Avance 3)
+scikit-image   # SSIM en la evaluación del Avance 3
 # notebooks
 notebook
 ipykernel

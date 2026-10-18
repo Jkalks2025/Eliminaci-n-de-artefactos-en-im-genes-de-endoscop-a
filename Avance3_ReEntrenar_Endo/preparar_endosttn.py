@@ -1,7 +1,7 @@
-"""Re-entrenar Endo, paso 1: arma con C3VDv2 un dataset en el formato que espera Endo-STTN para entrenar.
+"""Avance 3 (re-entrenar Endo-STTN), paso 1: arma con C3VDv2 un dataset en el formato que espera Endo-STTN para entrenar.
 
-    python ReEntrenar_Endo/preparar_endosttn.py
-    python ReEntrenar_Endo/preparar_endosttn.py --mascara umbral --paso 2 --division mi_division.json
+    python Avance3_ReEntrenar_Endo/preparar_endosttn.py
+    python Avance3_ReEntrenar_Endo/preparar_endosttn.py --mascara umbral --paso 2 --division mi_division.json
 
 Lee los ZIPs de datos/raw/ (solo hace falta rgb/, así que sirven también videos sin profundidad),
 lleva cada frame a 288x288 como en la inferencia de Endo-STTN y calcula su máscara de reflejos:
