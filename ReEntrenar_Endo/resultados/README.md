@@ -1,10 +1,10 @@
-# Resultados del Avance 3.1
+# Resultados · Re-entrenar Endo
 
 | Prueba | Fecha | Resumen |
 |---|---|---|
 | *(pendiente)* | | |
 
-`evaluar_endosttn.py` escribe aquí (en Colab, en `MyDrive/Equipo19/avance3_1/resultados/`):
+`evaluar_endosttn.py` escribe aquí (en Colab, en `MyDrive/Equipo19/re_entrenar_endo/resultados/`):
 
 - `resumen.md`: error del relleno en el video de prueba (original vs reentrenado), prueba de Wilcoxon y tabla de validación por checkpoint.
 - `validacion_por_checkpoint.csv`: MAE y PSNR en el hueco desplazado para el original y cada checkpoint.

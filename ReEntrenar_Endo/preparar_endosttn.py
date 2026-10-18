@@ -1,7 +1,7 @@
-"""Avance 3.1, paso 1: arma con C3VDv2 un dataset en el formato que espera Endo-STTN para entrenar.
+"""Re-entrenar Endo, paso 1: arma con C3VDv2 un dataset en el formato que espera Endo-STTN para entrenar.
 
-    python Avance3_1_ReentrenamientoEndoSTTN/preparar_endosttn.py
-    python Avance3_1_ReentrenamientoEndoSTTN/preparar_endosttn.py --paso 2 --division mi_division.json
+    python ReEntrenar_Endo/preparar_endosttn.py
+    python ReEntrenar_Endo/preparar_endosttn.py --paso 2 --division mi_division.json
 
 Lee los ZIPs de datos/raw/ y, para cada frame, hace lo mismo que el Avance 2 (320x256 y máscara de
 reflejos por umbral de brillo, codigo/c3vd.py) y lo lleva a 288x288 como en la inferencia de

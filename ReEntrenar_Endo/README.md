@@ -1,4 +1,4 @@
-# Avance 3.1 · Reentrenamiento de Endo-STTN con C3VDv2
+# Re-entrenar Endo · Endo-STTN reentrenado con C3VDv2 (Avance 3.1)
 
 **Equipo 19** · Continúa el [Avance 2](../Avance2_DeepEstimator_EndoSTTN/README.md), en paralelo al
 [Avance 3](../Avance3_EntrenamientoConjunto/README.md).
@@ -66,18 +66,18 @@ en el hueco es el "reentrenado" (`gen_mejor.pth`), y se compara contra el origin
 
 ## 4. Cómo correrlo
 
-**En Google Colab (recomendado):** [`notebooks/Equipo19_Avance3_1_colab.ipynb`](notebooks/Equipo19_Avance3_1_colab.ipynb).
+**En Google Colab (recomendado):** [`notebooks/Equipo19_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_ReEntrenar_Endo_colab.ipynb).
 Usa `MyDrive/Equipo19/raw/` (los mismos ZIPs del Avance 2) y toma la división de `c3vd_preparado.zip`. Todo lo
-que produce queda en `MyDrive/Equipo19/avance3_1/`, y si Colab se desconecta, al volver a correrlo continúa desde el
+que produce queda en `MyDrive/Equipo19/re_entrenar_endo/`, y si Colab se desconecta, al volver a correrlo continúa desde el
 último checkpoint.
 
 **En una computadora con GPU:**
 
 ```bash
 pip install tensorboardX                                              # lo usa el entrenamiento de Endo-STTN
-python Avance3_1_ReentrenamientoEndoSTTN/preparar_endosttn.py         # datos/endosttn_c3vd/
-python Avance3_1_ReentrenamientoEndoSTTN/entrenar_endosttn.py         # modelos/endosttn_c3vd/gen_XXXXX.pth
-python Avance3_1_ReentrenamientoEndoSTTN/evaluar_endosttn.py          # resultados/ y gen_mejor.pth
+python ReEntrenar_Endo/preparar_endosttn.py         # datos/endosttn_c3vd/
+python ReEntrenar_Endo/entrenar_endosttn.py         # modelos/endosttn_c3vd/gen_XXXXX.pth
+python ReEntrenar_Endo/evaluar_endosttn.py          # resultados/ y gen_mejor.pth
 ```
 
 Opciones útiles: `--iteraciones 20000`, `--lote 2` (si falta memoria), `--paso 2` (menos frames),
@@ -111,7 +111,7 @@ Opciones útiles: `--iteraciones 20000`, `--lote 2` (si falta memoria), `--paso 
 | [`entrenar_endosttn.py`](entrenar_endosttn.py) | Paso 2: entrenamiento original de Endo-STTN con la configuración de C3VDv2 |
 | [`evaluar_endosttn.py`](evaluar_endosttn.py) | Paso 3: elección del checkpoint y comparación original vs reentrenado |
 | [`endosttn_c3vd.py`](endosttn_c3vd.py) | Rutas, hueco desplazado y métricas compartidas |
-| [`notebooks/Equipo19_Avance3_1_colab.ipynb`](notebooks/Equipo19_Avance3_1_colab.ipynb) | Flujo completo en Colab con figuras |
+| [`notebooks/Equipo19_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_ReEntrenar_Endo_colab.ipynb) | Flujo completo en Colab con figuras |
 | [`resultados/`](resultados/) | Resultados de cada corrida |
 
 ## Referencia

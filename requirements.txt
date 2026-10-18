@@ -10,7 +10,7 @@ pandas
 scipy
 tabulate
 gdown
-tensorboardX   # entrenamiento de Endo-STTN (Avance 3.1)
+tensorboardX   # entrenamiento de Endo-STTN (ReEntrenar_Endo)
 # notebooks
 notebook
 ipykernel

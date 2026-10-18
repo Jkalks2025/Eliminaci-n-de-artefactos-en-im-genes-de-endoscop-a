@@ -1,4 +1,4 @@
-"""Avance 3.1: rutas y utilidades compartidas para reentrenar Endo-STTN con C3VDv2.
+"""Re-entrenar Endo: rutas y utilidades compartidas para reentrenar Endo-STTN con C3VDv2.
 
 Endo-STTN se entrena sin imágenes "limpias" de referencia: la máscara de reflejos de cada frame se
 desplaza 50 px a la derecha (a 288x288) y se le quitan los píxeles que caen sobre reflejos reales.
