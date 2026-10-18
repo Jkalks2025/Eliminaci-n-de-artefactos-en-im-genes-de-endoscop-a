@@ -59,13 +59,23 @@ def main():
     if not Path(args.pesos).exists():
         raise SystemExit(f"No encuentro {args.pesos} (python preparar_entorno.py lo descarga)")
 
-    # Barra de progreso de Endo-STTN: una línea cada 30 s en vez de una por iteración
-    os.environ.setdefault("TQDM_MININTERVAL", "30")
     import random
     import numpy as np
     import torch
     sys.path.insert(0, str(ec.ENDO_STTN))
+    import tqdm
+    import core.trainer
     from core.trainer import Trainer
+    class BarraLenta(tqdm.tqdm):
+        """Barra de progreso de Endo-STTN que se actualiza cada 60 s y no en cada iteración (en Colab cada
+        actualización queda guardada en el notebook). set_description de trainer.py forzaba un refresco."""
+        def __init__(self, *a, **k):
+            super().__init__(*a, **{**k, "mininterval": 60})
+
+        def set_description(self, desc=None, refresh=True):
+            super().set_description(desc, refresh=False)
+
+    core.trainer.tqdm = BarraLenta
 
     class Entrenador(Trainer):
         def save(self, it):
