@@ -1,7 +1,7 @@
 """Avance 4: ajuste de punta a punta de Endo-STTN + AF-SfMLearner (modelo E).
 
-    python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py
-    python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py --sttn-capas transformer --peso-hueco 1 --peso-ancla 0.5
+    python Entrenamiento_end_to_end/ajustar_conjunto.py
+    python Entrenamiento_end_to_end/ajustar_conjunto.py --sttn-capas transformer --peso-hueco 1 --peso-ancla 0.5
 
 En D, Endo-STTN está congelado: limpia los frames una vez y el estimador aprende con ellos. En E la
 pérdida de profundidad también entrena a Endo-STTN: el relleno de los reflejos se ajusta para que el

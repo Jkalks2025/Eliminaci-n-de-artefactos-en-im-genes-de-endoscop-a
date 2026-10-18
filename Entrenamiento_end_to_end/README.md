@@ -74,7 +74,7 @@ limpios en `c3vd_limpio.zip`, los modelos en `modelos/` y los resultados en `res
 `rgb_limpio.npy` (ancla y diagnóstico) y la misma división de videos.
 
 ```bash
-python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py                    # modelo E
+python Entrenamiento_end_to_end/ajustar_conjunto.py                    # modelo E
 python codigo/evaluar_profundidad.py                                        # A, B, C, D y E
 ```
 
@@ -86,11 +86,11 @@ Variantes útiles:
 
 ```bash
 # solo el transformer de Endo-STTN (menos memoria, cambia menos el relleno)
-python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py --sttn-capas transformer
+python Entrenamiento_end_to_end/ajustar_conjunto.py --sttn-capas transformer
 # más regularización si el relleno se aleja demasiado del original
-python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py --peso-hueco 2 --peso-ancla 0.5
+python Entrenamiento_end_to_end/ajustar_conjunto.py --peso-hueco 2 --peso-ancla 0.5
 # si no alcanza la memoria de la GPU
-python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py --lote 1
+python Entrenamiento_end_to_end/ajustar_conjunto.py --lote 1
 ```
 
 ## 5. Experimentos

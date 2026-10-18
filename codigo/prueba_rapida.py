@@ -65,7 +65,7 @@ def main():
         ["limpiar_endosttn.py", "--pesos", str(tmp / "gen_aleatorio.pth")],
         ["ajustar_profundidad.py", "--entrada", "rgb", "--epocas", "1", "--lote", "4"],
         ["ajustar_profundidad.py", "--entrada", "rgb_limpio", "--epocas", "1", "--lote", "4"],
-        ["../Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py", "--pesos-sttn", str(tmp / "gen_aleatorio.pth"), "--epocas", "1", "--lote", "1"],
+        ["../Entrenamiento_end_to_end/ajustar_conjunto.py", "--pesos-sttn", str(tmp / "gen_aleatorio.pth"), "--epocas", "1", "--lote", "1"],
         ["evaluar_profundidad.py"],
     ]
     for paso in pasos:
