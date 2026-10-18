@@ -13,6 +13,8 @@
 
 Al terminar una corrida, crea una carpeta `prueba_N/` con esos archivos y el notebook ejecutado, y agrega una fila a la tabla.
 
+El notebook `Equipo19_Avance3_Evaluar_Mascara_Meslouhi_colab.ipynb` escribe en `mascara_meslouhi/`: estadísticas por frame y por video, figuras (pasos del método, revisión de 50 frames, casos extremos) y `hoja_revision_meslouhi.csv` para la revisión manual.
+
 `comparar_mascaras.py` (o el notebook de comparación de máscaras) escribe en `mascaras/`: `comparacion_resumen.md`
 y `.csv` (precisión, sensibilidad, F1 e IoU por método), `comparacion_por_frame.csv`, `comparacion_metricas.png` y
 `comparacion_visual.png`.
