@@ -1,4 +1,4 @@
-# Avance 4 · Endo-STTN y el estimador de profundidad entrenados juntos (modelo E)
+# Avance 4 · Entrenamiento end-to-end: Endo-STTN y el estimador de profundidad juntos (modelo E)
 
 **Equipo 19** · Exploración a partir del [Avance 2](../Avance2_DeepEstimator_EndoSTTN/README.md)
 
@@ -74,7 +74,7 @@ limpios en `c3vd_limpio.zip`, los modelos en `modelos/` y los resultados en `res
 `rgb_limpio.npy` (ancla y diagnóstico) y la misma división de videos.
 
 ```bash
-python Avance4_EntrenamientoConjunto/ajustar_conjunto.py                    # modelo E
+python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py                    # modelo E
 python codigo/evaluar_profundidad.py                                        # A, B, C, D y E
 ```
 
@@ -86,11 +86,11 @@ Variantes útiles:
 
 ```bash
 # solo el transformer de Endo-STTN (menos memoria, cambia menos el relleno)
-python Avance4_EntrenamientoConjunto/ajustar_conjunto.py --sttn-capas transformer
+python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py --sttn-capas transformer
 # más regularización si el relleno se aleja demasiado del original
-python Avance4_EntrenamientoConjunto/ajustar_conjunto.py --peso-hueco 2 --peso-ancla 0.5
+python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py --peso-hueco 2 --peso-ancla 0.5
 # si no alcanza la memoria de la GPU
-python Avance4_EntrenamientoConjunto/ajustar_conjunto.py --lote 1
+python Avance4_Entrenamiento_end_to_end/ajustar_conjunto.py --lote 1
 ```
 
 ## 5. Experimentos

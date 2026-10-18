@@ -1,7 +1,7 @@
 # Avance 3 · Re-entrenar Endo-STTN con C3VDv2
 
 **Equipo 19** · Continúa el [Avance 2](../Avance2_DeepEstimator_EndoSTTN/README.md). El
-[Avance 4](../Avance4_EntrenamientoConjunto/README.md) (entrenamiento conjunto) queda en pausa hasta terminar este.
+[Avance 4](../Avance4_Entrenamiento_end_to_end/README.md) (entrenamiento conjunto) queda en pausa hasta terminar este.
 
 > **Estado:** implementado y probado de punta a punta con datos sintéticos (preparar, entrenar, continuar un
 > entrenamiento interrumpido, evaluar y el notebook). Falta correrlo con C3VDv2 en Colab con GPU.
