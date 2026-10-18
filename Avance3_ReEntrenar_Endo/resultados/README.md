@@ -16,3 +16,7 @@ Al terminar una corrida, crea una carpeta `prueba_N/` con esos archivos y el not
 `comparar_mascaras.py` (o el notebook de comparación de máscaras) escribe en `mascaras/`: `comparacion_resumen.md`
 y `.csv` (precisión, sensibilidad, F1 e IoU por método), `comparacion_por_frame.csv`, `comparacion_metricas.png` y
 `comparacion_visual.png`.
+
+| Corrida | Archivo | Nota |
+|---|---|---|
+| Comparación de máscaras, 18/10/2026, 6 videos registrados, 30 frames c/u | [`mascaras/Comparar_Mascaras_Resultado.ipynb`](mascaras/Comparar_Mascaras_Resultado.ipynb) | **Referencia no confiable todavía:** con K = 1.3 marca los bordes de los pliegues (desalineación entre el render y el frame) y omite reflejos visibles; las métricas de esta corrida no sirven para elegir método |
