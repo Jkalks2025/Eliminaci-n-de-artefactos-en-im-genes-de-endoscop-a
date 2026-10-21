@@ -106,7 +106,7 @@ No se usa ese notebook directamente porque sus funciones de scikit-image (`compa
 
 **En Google Colab (recomendado):** [`notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb).
 Usa `MyDrive/Equipo19/raw/` (los mismos ZIPs del Avance 2) y toma la división de `c3vd_preparado.zip`. Todo lo
-que produce queda en `MyDrive/Equipo19/re_entrenar_endo/`, y si Colab se desconecta, al volver a correrlo continúa desde el
+que produce queda en `MyDrive/Equipo19/re_entrenar_endo/mascara_<método>/`, y si Colab se desconecta, al volver a correrlo continúa desde el
 último checkpoint.
 
 **En una computadora con GPU:**
@@ -155,6 +155,7 @@ Opciones útiles: `--mascara hsv|arnold|umbral` (otros métodos de máscara), `-
 | [`evaluar_endosttn.py`](evaluar_endosttn.py) | Paso 3: elección del checkpoint y comparación original vs reentrenado |
 | [`endosttn_c3vd.py`](endosttn_c3vd.py) | Máscaras (El Meslouhi, HSV, Arnold y umbral), división por segmento, hueco desplazado y métricas |
 | [`comparar_mascaras.py`](comparar_mascaras.py) | Mide los métodos de máscara contra la referencia de `diffuse/` de C3VDv2 |
+| [`notebooks/Equipo19_Avance3_ReEntrenar_Endo_Arnold_colab.ipynb`](notebooks/Equipo19_Avance3_ReEntrenar_Endo_Arnold_colab.ipynb) | El mismo flujo de re-entrenamiento con la máscara de Arnold (2010); guarda todo en `re_entrenar_endo/mascara_arnold/` |
 | [`notebooks/Equipo19_Avance3_Evaluar_Mascara_Meslouhi_colab.ipynb`](notebooks/Equipo19_Avance3_Evaluar_Mascara_Meslouhi_colab.ipynb) | Evaluación solo de la máscara de El Meslouhi: el método paso a paso, cuánto marca por video, revisión de 50 frames, casos extremos y hoja de revisión (Colab, sin GPU) |
 | [`notebooks/Equipo19_Avance3_Comparar_Mascaras_colab.ipynb`](notebooks/Equipo19_Avance3_Comparar_Mascaras_colab.ipynb) | Marco teórico de cada método de máscara y su comparación (Colab, sin GPU) |
 | [`notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb`](notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb) | Flujo completo en Colab con figuras |
