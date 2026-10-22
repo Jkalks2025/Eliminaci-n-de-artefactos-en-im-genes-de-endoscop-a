@@ -2,7 +2,7 @@
 
 | Prueba | Fecha | Resumen |
 |---|---|---|
-| *(pendiente)* | | |
+| [`prueba_1_arnold/`](prueba_1_arnold/Prueba_Entrenamiento_con_Arnold_Ejecutado.ipynb) · máscara Arnold, 2000 it., A100 | 22/10/2026 | Mejor checkpoint: iteración 1000. Prueba (`c2_descending_t4`): PSNR 29.09 → 30.33 dB, SSIM 0.841 → 0.890, MAE 6.88 → 5.74. Arnold marca tejido claro como reflejo en `c1_ascending`; no comparable directo con El Meslouhi (hueco distinto). Interpretación en el notebook |
 
 `evaluar_endosttn.py` escribe aquí (en Colab, en `MyDrive/Equipo19/re_entrenar_endo/resultados/`):
 
