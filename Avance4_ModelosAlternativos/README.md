@@ -89,22 +89,31 @@ división de la corrida 5.
 | Integrante | Contribución al avance |
 |---|---|
 | Javier Emmanuel García Escobedo | _Por completar_ |
-| Mario Raúl García Ramírez | _Por completar_ |
-| Juan Miguel Molina Reyes | _Por completar_ |
+| Mario Raúl García Ramírez | Ejecutó en Colab las corridas 1 a 5 con la máscara de El Meslouhi, variando el video de validación, la tasa de aprendizaje, el lote, las iteraciones y la semilla, y subió sus resultados. |
+| Juan Miguel Molina Reyes | Evaluó la máscara de El Meslouhi en C3VDv2 y ejecutó la prueba de entrenamiento con la máscara de Arnold et al. (2010) para compararla con El Meslouhi. |
 
 ### Decisiones principales
 
-<small><b>Decisión 1:</b> Dejar `c1_ascending_t3_v1` en entrenamiento y validar con `c2_sigmoid_t3_v2`</small>
+<small><b>Decisión 1:</b> Usar la máscara de El Meslouhi et al. (2011) y no la de Arnold et al. (2010) para las corridas</small>
 
+- <small>Responsables: Juan (evaluó El Meslouhi y entrenó con Arnold), Mario (corridas con El Meslouhi), Javier (_por completar_).</small>
+- <small>Justificación: es el método que usaron los autores de Endo-STTN, y en C3VDv2 marca reflejos sin invadir el tejido. En la prueba de Juan, Arnold marcó en promedio 7.6 % de la imagen contra 3.9 % de El Meslouhi, y en `c1_ascending` llegó a 23.5 % contra 2.4 %, pintando como reflejo pared clara que no lo es.</small>
+- <small>Alternativa descartada y motivo: Arnold. Su modelo reentrenado sí mejoró al original (+1.24 dB de PSNR), pero aprende a borrar tejido normal, y sus huecos de prueba son otros, así que sus métricas no se pueden comparar directamente con las de El Meslouhi. Queda como siguiente paso compararlas con los mismos huecos (sección 6).</small>
+
+<small><b>Decisión 2:</b> Dejar `c1_ascending_t3_v1` en entrenamiento y validar con `c2_sigmoid_t3_v2`</small>
+
+- <small>Responsable: Mario, a partir de las corridas 1 a 5.</small>
 - <small>Justificación: con `c1_ascending` fuera del entrenamiento (corridas 1 y 3) el modelo reentrenado fue peor que el original en prueba; con él dentro (corridas 2, 4 y 5) fue mejor, con diferencias significativas.</small>
 - <small>Alternativa descartada y motivo: validar con `c1_ascending_t3_v1`, porque deja fuera el único video del colon c1 y el reentrenamiento empeora el relleno.</small>
 
-<small><b>Decisión 2:</b> Usar una tasa de aprendizaje de 1e-5 en lugar de 1e-4</small>
+<small><b>Decisión 3:</b> Usar una tasa de aprendizaje de 1e-5 en lugar de 1e-4</small>
 
+- <small>Responsable: Mario, a partir de las corridas 1 a 5.</small>
 - <small>Justificación: con 1e-5 la validación es estable entre checkpoints y la prueba mejora (32.52 dB contra 31.67 dB de PSNR, corrida 4 contra 2).</small>
 - <small>Alternativa descartada y motivo: 1e-4, la del entrenamiento original de Endo-STTN, porque al partir de pesos ya entrenados la validación oscila y el resultado en prueba es menor.</small>
 
-<small><b>Decisión 3:</b> Entrenar 2000 iteraciones y comprobar el resultado con una segunda semilla</small>
+<small><b>Decisión 4:</b> Entrenar 2000 iteraciones y comprobar el resultado con una segunda semilla</small>
 
+- <small>Responsable: Mario, a partir de las corridas 1 a 5.</small>
 - <small>Justificación: el mejor checkpoint aparece antes de las 2000 iteraciones y la corrida 5 (semilla 2021) reproduce casi igual la corrida 4 (32.43 contra 32.52 dB).</small>
 - <small>Alternativa descartada y motivo: entrenamientos largos (10 000 iteraciones en la corrida 1), porque la validación empeora casi sin parar desde la iteración 1000.</small>
