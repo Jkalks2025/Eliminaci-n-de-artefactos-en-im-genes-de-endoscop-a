@@ -82,7 +82,7 @@ división de la corrida 5.
 
 | Herramienta utilizada | Propósito de uso | Alcance del apoyo (celdas o secciones) | Responsabilidad: qué revisó o validó el equipo |
 |---|---|---|---|
-| Anthropic. (2026). Claude Code [Herramienta de inteligencia artificial generativa para programación].<br>https://claude.ai/code | Organizar la carpeta, comparar las corridas a partir de sus `resumen.md` y `config.json`, y redactar este README | Secciones 1 a 6 de este README; copia de los notebooks a `corrida_1/` … `corrida_5/` | _Por completar por el equipo_ (por ejemplo: se cotejaron las métricas de la tabla de la sección 3 contra los `resumen.md` de cada corrida) |
+| Anthropic. (2026). Claude Code [Herramienta de inteligencia artificial generativa para programación].<br>https://claude.ai/code | Organizar la carpeta, comparar las corridas a partir de sus `resumen.md` y `config.json`, y redactar este README | Secciones 1 a 6 de este README; copia de los notebooks a `corrida_1/` … `corrida_5/` | Javier cotejó las métricas de la tabla de la sección 3 contra los `resumen.md` de cada corrida |
 
 ### Contribución individual
 
