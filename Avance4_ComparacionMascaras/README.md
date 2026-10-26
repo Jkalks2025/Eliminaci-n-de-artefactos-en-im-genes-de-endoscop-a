@@ -15,9 +15,10 @@ y **Arnold et al. (2010)** (prueba del Avance 3 y variantes A1 a A3).
 | `resultados/arnold/` | `Prueba_Entrenamiento_con_Arnold_Ejecutado.ipynb` | Prueba de entrenamiento con la máscara de Arnold et al. (2010), con sus salidas |
 | `resultados/arnold/` | `Arnold_variaciones.ipynb` | Notebook de Colab para las variantes A1, A2 y A3 con Arnold (sección 6), sin ejecutar |
 
-Son **copias**. Los notebooks de El Meslouhi vienen de la rama `claude/beautiful-faraday-drzen3`, donde están también
-los resúmenes (`resumen.md`), configuraciones (`config.json`, `mejor.json`), métricas (`*.csv`) y figuras de cada
-corrida. El de Arnold viene de `Avance3_ReEntrenar_Endo/resultados/`, que lo conserva.
+Son **copias**. Los notebooks de El Meslouhi vienen de las carpetas `corrida_1/` … `corrida_5/` de la raíz del
+repositorio, donde están también los resúmenes (`resumen.md`), configuraciones (`config.json`, `mejor.json`),
+métricas (`*.csv`) y figuras de cada corrida, y su análisis en el [README principal](../README.md). El de Arnold viene
+de `Avance3_ReEntrenar_Endo/resultados/`, que lo conserva.
 
 ## 2. Lo que comparten las cinco corridas
 
