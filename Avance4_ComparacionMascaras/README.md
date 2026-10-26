@@ -1,0 +1,135 @@
+# Avance 4 · Comparación de máscaras
+
+**Equipo 19** · Continúa el [Avance 3](../Avance3_ReEntrenar_Endo/README.md). Compara dos máscaras de reflejos
+para reentrenar Endo-STTN con C3VDv2: **El Meslouhi et al. (2011)**, la de los autores de Endo-STTN (corridas 1 a 5),
+y **Arnold et al. (2010)** (prueba del Avance 3 y variantes A1 a A3).
+
+> **Aclaración:** este avance se hizo con apoyo de herramientas de IA. Su uso, la contribución de cada integrante
+> y las decisiones principales están en la [declaración de uso de IA](#7-declaración-de-uso-de-ia-y-contribución-del-equipo).
+
+## 1. Contenido
+
+| Carpeta | Archivo | Qué es |
+|---|---|---|
+| `resultados/meslouhi/corrida_1/` … `corrida_5/` | `notebook_ejecutado.ipynb` | Notebook de Colab de cada corrida con la máscara de El Meslouhi, con sus salidas |
+| `resultados/arnold/` | `Prueba_Entrenamiento_con_Arnold_Ejecutado.ipynb` | Prueba de entrenamiento con la máscara de Arnold et al. (2010), con sus salidas |
+| `resultados/arnold/` | `Arnold_variaciones.ipynb` | Notebook de Colab para las variantes A1, A2 y A3 con Arnold (sección 6), sin ejecutar |
+
+Son **copias**. Los notebooks de El Meslouhi vienen de las carpetas `corrida_1/` … `corrida_5/` de la raíz del
+repositorio, donde están también los resúmenes (`resumen.md`), configuraciones (`config.json`, `mejor.json`),
+métricas (`*.csv`) y figuras de cada corrida, y su análisis en el [README principal](../README.md). El de Arnold viene
+de `Avance3_ReEntrenar_Endo/resultados/`, que lo conserva.
+
+## 2. Lo que comparten las cinco corridas
+
+- Endo-STTN reentrenado desde los pesos publicados (`gen_00009.pth`), con el entrenamiento original
+  (`Avance3_ReEntrenar_Endo/entrenar_endosttn.py`).
+- Máscara de reflejos de **El Meslouhi et al. (2011)**, frames de 288×288, todos los frames de cada video.
+- **Mismos videos de prueba:** `c2_descending_t4_v2` y `c2_descending_t4_v3` (250 frames).
+- Evaluación con el *hueco desplazado* (pseudo ground truth): la máscara de reflejos movida 50 px, sobre tejido
+  cuyo color sí se conoce.
+
+## 3. En qué se diferencian
+
+| Corrida | Validación | lr | Lote | Iteraciones | Semilla | GPU | Mejor checkpoint | PSNR | SSIM | MAE |
+|---|---|---|---|---|---|---|---|---|---|---|
+| original (`gen_00009`) | — | — | — | — | — | — | — | 29.51 | 0.826 | 6.66 |
+| 1 | `c1_ascending_t3_v1` | 1e-4 | 2 | 10 000 | 2020 | T4 | iter. 1000 | 27.18 | 0.808 | 8.68 |
+| 2 | `c2_sigmoid_t3_v2` | 1e-4 | 4 | 4 000 | 2020 | L4 | iter. 750 | 31.67 | 0.872 | 4.75 |
+| 3 | `c1_ascending_t3_v1` | 1e-4 | 4 | 2 000 | 2020 | L4 | iter. 1250 | 26.67 | 0.802 | 8.71 |
+| **4** | `c2_sigmoid_t3_v2` | **1e-5** | 4 | 2 000 | 2020 | L4 | iter. 1750 | **32.52** | **0.879** | **4.30** |
+| 5 | `c2_sigmoid_t3_v2` | 1e-5 | 4 | 2 000 | 2021 | L4 | iter. 2000 | 32.43 | 0.876 | 4.37 |
+
+Métricas en el hueco desplazado de los videos de prueba. PSNR (dB) y SSIM: mayor es mejor; MAE (0-255): menor es mejor.
+
+## 4. Conclusiones
+
+1. **El video de validación es lo que más pesa.** Con `c1_ascending` en validación (corridas 1 y 3) ese video queda
+   fuera del entrenamiento y el reentrenado es **peor** que el original (Wilcoxon p = 1). Con `c2_sigmoid` en
+   validación, `c1_ascending` entra al entrenamiento y el reentrenado es **mejor** (p < 1e-26). `c1_ascending` es
+   el único video del colon c1 y aporta variedad que los demás no tienen.
+2. **lr 1e-5 es mejor que 1e-4** (corrida 4 vs 2): la curva de validación es estable y el resultado en prueba,
+   mejor. Con 1e-4 la validación oscila de un checkpoint a otro.
+3. **El resultado es reproducible** (corrida 4 vs 5): cambiar la semilla casi no lo mueve (32.52 vs 32.43 dB).
+4. **Entrenar más no ayuda** (corrida 1): con 10 000 iteraciones la validación empeora casi sin parar desde la 1000.
+5. **Configuración recomendada:** la de la corrida 4 (lr 1e-5, lote 4, 2000 iteraciones, `c1_ascending` en
+   entrenamiento y `c2_sigmoid` en validación).
+
+## 5. Notas importantes
+
+- **Corridas 2 y 4 sin `config.json`.** Sus parámetros salen del notebook y del `resumen.md`; la división de
+  entrenamiento se supone igual a la de la corrida 5, pero no está guardada.
+- **La validación no es comparable entre corridas** con distinto video de validación (1 y 3 contra 2, 4 y 5). La
+  prueba sí lo es: los mismos dos videos en todas.
+- **La prueba es pequeña:** un solo segmento (`c2_descending_t4`, 2 videos). Los valores p de Wilcoxon exageran la
+  certeza porque los frames de un video están correlacionados.
+- **El pseudo ground truth premia copiar reflejos:** el hueco desplazado puede caer sobre otro reflejo cercano, y
+  entonces el modelo que lo reproduce obtiene mejor métrica. Revisar también las figuras, no solo los números.
+- **Otra máscara cambia la prueba.** El hueco desplazado sale de la propia máscara de reflejos, así que con otra
+  máscara (por ejemplo Arnold et al., 2010) los huecos de prueba son otros: el modelo original da 29.09 dB con
+  Arnold y 29.51 dB con El Meslouhi. Para comparar máscaras, todos los modelos deben evaluarse con los **mismos
+  huecos**.
+- **Arnold marca tejido claro como reflejo,** sobre todo en `c1_ascending` (hasta 23.5 % del frame contra 2.4 % de
+  El Meslouhi), justo el video que hace ganar a las corridas 2, 4 y 5.
+
+## 6. Siguiente paso: variantes con Arnold
+
+[`resultados/arnold/Arnold_variaciones.ipynb`](resultados/arnold/Arnold_variaciones.ipynb) repite con la máscara de
+Arnold la configuración de la corrida 4 (lr 1e-5, lote 4, división de la corrida 5), en tres variantes:
+
+| Variante | Cambio | Pregunta |
+|---|---|---|
+| A1 | Configuración de la corrida 4, semilla 2020, 2000 iteraciones | ¿Arnold rinde como El Meslouhi con la mejor configuración? |
+| A2 | Igual que A1, semilla 2021 | ¿El resultado se repite? |
+| A3 | Igual que A1, hasta 4000 iteraciones (continúa desde A1) | ¿Entrenar más ayuda con lr bajo? |
+
+No se prueba subir las iteraciones con lr 1e-4: en la corrida 1 y en la prueba con Arnold del Avance 3 la
+validación empeora desde la iteración 1000.
+
+Cada variante se evalúa dos veces: con los huecos de Arnold y con los de El Meslouhi
+(`evaluar_endosttn.py --mascara-eval meslouhi`). La segunda usa los mismos huecos que las corridas 1 a 5, así que es
+la que permite comparar las dos máscaras; como comprobación, el modelo original debe dar ahí 29.51 dB de PSNR.
+Se corre una variante por sesión de Colab (`VARIANTE = "A1"`, `"A2"` o `"A3"`; A3 después de A1), y sus resultados
+se suben a `resultados/arnold/<VARIANTE>/`.
+
+## 7. Declaración de uso de IA y contribución del equipo
+
+### Uso de herramientas de IA
+
+| Herramienta utilizada | Propósito de uso | Alcance del apoyo (celdas o secciones) | Responsabilidad: qué revisó o validó el equipo |
+|---|---|---|---|
+| Anthropic. (2026). Claude Code [Herramienta de inteligencia artificial generativa para programación].<br>https://claude.ai/code | Organizar la carpeta, comparar las corridas a partir de sus `resumen.md` y `config.json`, y redactar este README | Secciones 1 a 6 de este README; copia de los notebooks a `resultados/meslouhi/` y `resultados/arnold/` | Javier cotejó las métricas de la tabla de la sección 3 contra los `resumen.md` de cada corrida |
+
+### Contribución individual
+
+| Integrante | Contribución al avance |
+|---|---|
+| Javier Emmanuel García Escobedo | Estructuró la comparación entre máscaras y corridas (qué se compara y con qué criterios) y validó los resultados y las conclusiones. |
+| Mario Raúl García Ramírez | Ejecutó en Colab las corridas 1 a 5 con la máscara de El Meslouhi, variando el video de validación, la tasa de aprendizaje, el lote, las iteraciones y la semilla. |
+| Juan Miguel Molina Reyes | Probó la máscara de Arnold et al. (2010): la evaluó frente a El Meslouhi y ejecutó un entrenamiento con ella. |
+
+### Decisiones principales
+
+<small><b>Decisión 1:</b> Usar la máscara de El Meslouhi et al. (2011) y no la de Arnold et al. (2010) para las corridas</small>
+
+- <small>Responsables: Juan (prueba con Arnold), Mario (corridas con El Meslouhi), Javier (estructuró la comparación y validó los resultados).</small>
+- <small>Justificación: es el método que usaron los autores de Endo-STTN, y en C3VDv2 marca reflejos sin invadir el tejido. En la prueba de Juan, Arnold marcó en promedio 7.6 % de la imagen contra 3.9 % de El Meslouhi, y en `c1_ascending` llegó a 23.5 % contra 2.4 %, pintando como reflejo pared clara que no lo es.</small>
+- <small>Alternativa descartada y motivo: Arnold. Su modelo reentrenado sí mejoró al original (+1.24 dB de PSNR), pero aprende a borrar tejido normal, y sus huecos de prueba son otros, así que sus métricas no se pueden comparar directamente con las de El Meslouhi. Queda como siguiente paso compararlas con los mismos huecos (sección 6).</small>
+
+<small><b>Decisión 2:</b> Dejar `c1_ascending_t3_v1` en entrenamiento y validar con `c2_sigmoid_t3_v2`</small>
+
+- <small>Responsables: Mario (corridas 1 a 5), Javier (validó los resultados).</small>
+- <small>Justificación: con `c1_ascending` fuera del entrenamiento (corridas 1 y 3) el modelo reentrenado fue peor que el original en prueba; con él dentro (corridas 2, 4 y 5) fue mejor, con diferencias significativas.</small>
+- <small>Alternativa descartada y motivo: validar con `c1_ascending_t3_v1`, porque deja fuera el único video del colon c1 y el reentrenamiento empeora el relleno.</small>
+
+<small><b>Decisión 3:</b> Usar una tasa de aprendizaje de 1e-5 en lugar de 1e-4</small>
+
+- <small>Responsables: Mario (corridas 1 a 5), Javier (validó los resultados).</small>
+- <small>Justificación: con 1e-5 la validación es estable entre checkpoints y la prueba mejora (32.52 dB contra 31.67 dB de PSNR, corrida 4 contra 2).</small>
+- <small>Alternativa descartada y motivo: 1e-4, la del entrenamiento original de Endo-STTN, porque al partir de pesos ya entrenados la validación oscila y el resultado en prueba es menor.</small>
+
+<small><b>Decisión 4:</b> Entrenar 2000 iteraciones y comprobar el resultado con una segunda semilla</small>
+
+- <small>Responsables: Mario (corridas 1 a 5), Javier (validó los resultados).</small>
+- <small>Justificación: el mejor checkpoint aparece antes de las 2000 iteraciones y la corrida 5 (semilla 2021) reproduce casi igual la corrida 4 (32.43 contra 32.52 dB).</small>
+- <small>Alternativa descartada y motivo: entrenamientos largos (10 000 iteraciones en la corrida 1), porque la validación empeora casi sin parar desde la iteración 1000.</small>
