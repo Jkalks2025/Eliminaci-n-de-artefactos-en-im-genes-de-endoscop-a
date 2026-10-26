@@ -1,0 +1,6 @@
+huecos,modelo,psnr,ssim,mae
+arnold,original,29.0941,0.8409,6.8848
+arnold,reentrenado (A1),32.4635,0.9076,3.9718
+meslouhi,original,29.51,0.8259,6.6584
+meslouhi,reentrenado (A1),32.7365,0.8803,4.1822
+meslouhi,"reentrenado (corrida 4, El Meslouhi)",32.5234,0.8786,4.2971
