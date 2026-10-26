@@ -13,6 +13,11 @@ de Endo-STTN: PSNR (dB) y SSIM (0-1), mayor es mejor; además MAE (0-255), menor
 
 Escribe en Avance3_ReEntrenar_Endo/resultados/: validacion_por_checkpoint.csv,
 prueba_por_frame.csv y resumen.md (con la máscara y la configuración usadas).
+
+Con --mascara-eval los huecos salen de otra máscara que la del entrenamiento (se recalcula a 288x288 desde
+los frames de eval/, igual que en preparar_endosttn.py). Sirve para comparar modelos entrenados con máscaras
+distintas sobre los mismos huecos, p. ej. uno entrenado con arnold evaluado con los huecos de meslouhi.
+En ese caso no toca gen_mejor.pth: el checkpoint elegido va a resultados/mejor_huecos_<máscara>.json.
 """
 import argparse
 import json
@@ -26,10 +31,23 @@ import endosttn_c3vd as ec
 import limpiar_endosttn as le
 
 
-def evaluar_video(modelo, video, device, bloque):
+_MASCARAS = {}
+
+
+def mascara_eval(video, metodo):
+    """Máscara de reflejos de un video de eval/: la de la preparación o, con metodo, recalculada."""
+    if metodo is None:
+        return np.load(ec.DIR_EVAL / video / "mask.npy")
+    if (video, metodo) not in _MASCARAS:
+        rgb = np.load(ec.DIR_EVAL / video / "rgb.npy")
+        _MASCARAS[video, metodo] = np.stack([getattr(ec, f"mascara_{metodo}")(f) for f in rgb])
+    return _MASCARAS[video, metodo]
+
+
+def evaluar_video(modelo, video, device, bloque, metodo=None):
     """Métricas por frame en el hueco desplazado y frames limpios de los reflejos reales."""
     rgb = np.load(ec.DIR_EVAL / video / "rgb.npy")
-    mask = np.load(ec.DIR_EVAL / video / "mask.npy")
+    mask = mascara_eval(video, metodo)
     hueco = ec.hueco_pseudo(mask)
     relleno = le.limpiar_video(modelo, rgb, hueco, device, bloque)
     filas = []
@@ -48,6 +66,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pesos-originales", default=str(ec.PESOS_ORIGINALES), help="Endo-STTN publicado")
     ap.add_argument("--bloque", type=int, default=60, help="frames por bloque (bájalo si falta memoria)")
+    ap.add_argument("--mascara-eval", choices=["meslouhi", "hsv", "arnold"],
+                    help="máscara de la que salen los huecos de evaluación (por defecto, la del entrenamiento)")
     args = ap.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -66,7 +86,7 @@ def main():
     if val:
         for nombre, it, pesos in modelos:
             modelo = le.cargar(pesos, device)
-            filas = [f for v in val for f in evaluar_video(modelo, v, device, args.bloque)]
+            filas = [f for v in val for f in evaluar_video(modelo, v, device, args.bloque, args.mascara_eval)]
             filas_val.append({"modelo": nombre, "iteracion": it, "mae": media(filas, "mae"),
                               "psnr": media(filas, "psnr"), "ssim": media(filas, "ssim"), "frames": len(filas)})
             print(f"validación {nombre:10s} (iteración {it:6d}): MAE {filas_val[-1]['mae']:.2f} | "
@@ -79,11 +99,16 @@ def main():
         nombre_mejor = checkpoints[-1].stem
         print("Sin videos de validación: se usa el último checkpoint.")
     mejor = ec.DIR_ENTRENAMIENTO / f"{nombre_mejor}.pth"
-    shutil.copy(mejor, ec.DIR_ENTRENAMIENTO / "gen_mejor.pth")
     it_mejor = int(nombre_mejor.split("_")[1]) * guardar_cada
-    json.dump({"checkpoint": nombre_mejor, "iteracion": it_mejor},
-              open(ec.DIR_ENTRENAMIENTO / "mejor.json", "w"), indent=2)
-    print(f"Reentrenado = {nombre_mejor} (iteración {it_mejor}) -> {ec.DIR_ENTRENAMIENTO / 'gen_mejor.pth'}")
+    if args.mascara_eval:   # gen_mejor.pth sigue siendo el elegido con la máscara del entrenamiento
+        json.dump({"checkpoint": nombre_mejor, "iteracion": it_mejor},
+                  open(ec.DIR_RESULTADOS / f"mejor_huecos_{args.mascara_eval}.json", "w"), indent=2)
+        print(f"Reentrenado (huecos {args.mascara_eval}) = {nombre_mejor} (iteración {it_mejor})")
+    else:
+        shutil.copy(mejor, ec.DIR_ENTRENAMIENTO / "gen_mejor.pth")
+        json.dump({"checkpoint": nombre_mejor, "iteracion": it_mejor},
+                  open(ec.DIR_ENTRENAMIENTO / "mejor.json", "w"), indent=2)
+        print(f"Reentrenado = {nombre_mejor} (iteración {it_mejor}) -> {ec.DIR_ENTRENAMIENTO / 'gen_mejor.pth'}")
 
     # 2. Prueba: original vs reentrenado
     prueba = div["prueba"]
@@ -93,7 +118,7 @@ def main():
     for nombre, pesos in [("original", args.pesos_originales), ("reentrenado", mejor)]:
         modelo = le.cargar(pesos, device)
         for v in prueba:
-            filas += [{"modelo": nombre, **f} for f in evaluar_video(modelo, v, device, args.bloque)]
+            filas += [{"modelo": nombre, **f} for f in evaluar_video(modelo, v, device, args.bloque, args.mascara_eval)]
     df = pd.DataFrame(filas)
     df.to_csv(ec.DIR_RESULTADOS / "prueba_por_frame.csv", index=False)
     resumen = df.groupby("modelo")[["psnr", "ssim", "mae"]].mean()
@@ -113,6 +138,7 @@ def main():
         f.write(f"Reentrenado: `{nombre_mejor}.pth` (iteración {it_mejor})  \n")
         prep = json.load(open(ec.DIR_DATASET / "preparacion.json"))
         cfg = json.load(open(ec.DIR_ENTRENAMIENTO / "config.json"))
+        f.write(f"Huecos de evaluación: máscara {args.mascara_eval or prep.get('mascara', 'umbral')}  \n")
         f.write(f"Máscaras: {prep.get('mascara', 'umbral')} · frames: 1 de cada {prep['paso']} · "
                 f"lote {cfg['trainer']['batch_size']} · lr {cfg['trainer']['lr']} · "
                 f"GPU: {cfg.get('gpu_nombre', '?')} · entrenamiento iniciado: {cfg.get('fecha', '?')}\n\n")

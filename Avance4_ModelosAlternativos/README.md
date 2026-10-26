@@ -13,6 +13,7 @@ reflejos, otras configuraciones de entrenamiento).
 |---|---|---|
 | `resultados/meslouhi/corrida_1/` … `corrida_5/` | `notebook_ejecutado.ipynb` | Notebook de Colab de cada corrida con la máscara de El Meslouhi, con sus salidas |
 | `resultados/arnold/` | `Prueba_Entrenamiento_con_Arnold_Ejecutado.ipynb` | Prueba de entrenamiento con la máscara de Arnold et al. (2010), con sus salidas |
+| `resultados/arnold/` | `Arnold_variaciones.ipynb` | Notebook de Colab para las variantes A1, A2 y A3 con Arnold (sección 6), sin ejecutar |
 
 Son **copias**. Los notebooks de El Meslouhi vienen de la rama `claude/beautiful-faraday-drzen3`, donde están también
 los resúmenes (`resumen.md`), configuraciones (`config.json`, `mejor.json`), métricas (`*.csv`) y figuras de cada
@@ -70,13 +71,25 @@ Métricas en el hueco desplazado de los videos de prueba. PSNR (dB) y SSIM: mayo
 - **Arnold marca tejido claro como reflejo,** sobre todo en `c1_ascending` (hasta 23.5 % del frame contra 2.4 % de
   El Meslouhi), justo el video que hace ganar a las corridas 2, 4 y 5.
 
-## 6. Siguiente paso
+## 6. Siguiente paso: variantes con Arnold
 
-Repetir la configuración de la corrida 4 con la máscara de Arnold
-([`Prueba_Entrenamiento_con_Arnold.ipynb`](../Avance3_ReEntrenar_Endo/notebooks/Prueba_Entrenamiento_con_Arnold.ipynb)),
-con dos semillas (2020 y 2021), y evaluar contra los huecos de El Meslouhi para que la comparación sea justa. En
-ese notebook hay que pasar `--lr 1e-5 --semilla <N>` a `entrenar_endosttn.py` y fijar `DIVISION_MANUAL` con la
-división de la corrida 5.
+[`resultados/arnold/Arnold_variaciones.ipynb`](resultados/arnold/Arnold_variaciones.ipynb) repite con la máscara de
+Arnold la configuración de la corrida 4 (lr 1e-5, lote 4, división de la corrida 5), en tres variantes:
+
+| Variante | Cambio | Pregunta |
+|---|---|---|
+| A1 | Configuración de la corrida 4, semilla 2020, 2000 iteraciones | ¿Arnold rinde como El Meslouhi con la mejor configuración? |
+| A2 | Igual que A1, semilla 2021 | ¿El resultado se repite? |
+| A3 | Igual que A1, hasta 4000 iteraciones (continúa desde A1) | ¿Entrenar más ayuda con lr bajo? |
+
+No se prueba subir las iteraciones con lr 1e-4: en la corrida 1 y en la prueba con Arnold del Avance 3 la
+validación empeora desde la iteración 1000.
+
+Cada variante se evalúa dos veces: con los huecos de Arnold y con los de El Meslouhi
+(`evaluar_endosttn.py --mascara-eval meslouhi`). La segunda usa los mismos huecos que las corridas 1 a 5, así que es
+la que permite comparar las dos máscaras; como comprobación, el modelo original debe dar ahí 29.51 dB de PSNR.
+Se corre una variante por sesión de Colab (`VARIANTE = "A1"`, `"A2"` o `"A3"`; A3 después de A1), y sus resultados
+se suben a `resultados/arnold/<VARIANTE>/`.
 
 ## 7. Declaración de uso de IA y contribución del equipo
 
