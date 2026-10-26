@@ -1,8 +1,8 @@
-# Avance 4 · Modelos alternativos
+# Avance 4 · Comparación de máscaras
 
-**Equipo 19** · Continúa el [Avance 3](../Avance3_ReEntrenar_Endo/README.md). Reúne las cinco corridas de
-reentrenamiento de Endo-STTN con C3VDv2 y sirve de punto de partida para probar alternativas (otras máscaras de
-reflejos, otras configuraciones de entrenamiento).
+**Equipo 19** · Continúa el [Avance 3](../Avance3_ReEntrenar_Endo/README.md). Compara dos máscaras de reflejos
+para reentrenar Endo-STTN con C3VDv2: **El Meslouhi et al. (2011)**, la de los autores de Endo-STTN (corridas 1 a 5),
+y **Arnold et al. (2010)** (prueba del Avance 3 y variantes A1 a A3).
 
 > **Aclaración:** este avance se hizo con apoyo de herramientas de IA. Su uso, la contribución de cada integrante
 > y las decisiones principales están en la [declaración de uso de IA](#7-declaración-de-uso-de-ia-y-contribución-del-equipo).
