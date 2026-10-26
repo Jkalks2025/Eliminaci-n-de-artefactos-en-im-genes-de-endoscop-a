@@ -11,10 +11,12 @@ reflejos, otras configuraciones de entrenamiento).
 
 | Carpeta | Archivo | Qué es |
 |---|---|---|
-| `corrida_1/` … `corrida_5/` | `notebook_ejecutado.ipynb` | Notebook de Colab de cada corrida, con sus salidas |
+| `resultados/meslouhi/corrida_1/` … `corrida_5/` | `notebook_ejecutado.ipynb` | Notebook de Colab de cada corrida con la máscara de El Meslouhi, con sus salidas |
+| `resultados/arnold/` | `Prueba_Entrenamiento_con_Arnold_Ejecutado.ipynb` | Prueba de entrenamiento con la máscara de Arnold et al. (2010), con sus salidas |
 
-Son **copias** de los notebooks de la rama `claude/beautiful-faraday-drzen3`, donde están también los resúmenes
-(`resumen.md`), configuraciones (`config.json`, `mejor.json`), métricas (`*.csv`) y figuras de cada corrida.
+Son **copias**. Los notebooks de El Meslouhi vienen de la rama `claude/beautiful-faraday-drzen3`, donde están también
+los resúmenes (`resumen.md`), configuraciones (`config.json`, `mejor.json`), métricas (`*.csv`) y figuras de cada
+corrida. El de Arnold viene de `Avance3_ReEntrenar_Endo/resultados/`, que lo conserva.
 
 ## 2. Lo que comparten las cinco corridas
 
@@ -82,7 +84,7 @@ división de la corrida 5.
 
 | Herramienta utilizada | Propósito de uso | Alcance del apoyo (celdas o secciones) | Responsabilidad: qué revisó o validó el equipo |
 |---|---|---|---|
-| Anthropic. (2026). Claude Code [Herramienta de inteligencia artificial generativa para programación].<br>https://claude.ai/code | Organizar la carpeta, comparar las corridas a partir de sus `resumen.md` y `config.json`, y redactar este README | Secciones 1 a 6 de este README; copia de los notebooks a `corrida_1/` … `corrida_5/` | Javier cotejó las métricas de la tabla de la sección 3 contra los `resumen.md` de cada corrida |
+| Anthropic. (2026). Claude Code [Herramienta de inteligencia artificial generativa para programación].<br>https://claude.ai/code | Organizar la carpeta, comparar las corridas a partir de sus `resumen.md` y `config.json`, y redactar este README | Secciones 1 a 6 de este README; copia de los notebooks a `resultados/meslouhi/` y `resultados/arnold/` | Javier cotejó las métricas de la tabla de la sección 3 contra los `resumen.md` de cada corrida |
 
 ### Contribución individual
 
