@@ -112,7 +112,7 @@ reflejo (2.6 % contra 0.1 %). Aun así, el modelo entrenado con Arnold no rellen
 
 **Validación por checkpoint** (`c2_sigmoid_t3_v2`, MAE en el hueco; la línea punteada es el original).
 
-| El Meslouhi · corrida 4 (Mario) | Arnold · A1 (Juan, huecos de Arnold y de El Meslouhi) |
+| El Meslouhi · corrida 4 | Arnold · A1 (huecos de Arnold y de El Meslouhi) |
 |---|---|
 | ![Validación corrida 4](figuras/validacion_meslouhi_corrida4.png) | ![Validación A1](figuras/validacion_arnold_A1.png) |
 
@@ -120,7 +120,7 @@ Con los huecos de El Meslouhi, la validación de Arnold A1 (1.88 de MAE en la it
 (1.90 en la 1750) son prácticamente iguales. La de A2 está en
 [`figuras/validacion_arnold_A2.png`](figuras/validacion_arnold_A2.png).
 
-Arnold · A3 (Juan): la validación sigue bajando un poco después de la iteración 2000, pero la prueba no mejora
+Arnold · A3: la validación sigue bajando un poco después de la iteración 2000, pero la prueba no mejora
 (sección 4).
 
 ![Validación A3](figuras/validacion_arnold_A3.png)
@@ -128,11 +128,11 @@ Arnold · A3 (Juan): la validación sigue bajando un poco después de la iteraci
 **Relleno en un frame de prueba** (`c2_descending_t4_v2`, frame 85, zoom): hueco desplazado (se conoce la respuesta)
 y reflejo real, original contra reentrenado.
 
-El Meslouhi · corrida 4 (Mario):
+El Meslouhi · corrida 4:
 
 ![Relleno corrida 4](../figuras/relleno_corrida4.png)
 
-Arnold · A1 (Juan): *pendiente.* El notebook `Arnold_variaciones.ipynb` ya tiene la celda que genera esta figura en el
+Arnold · A1: *pendiente.* El notebook `Arnold_variaciones.ipynb` ya tiene la celda que genera esta figura en el
 mismo frame (`relleno_A1.png`); falta correrla (ver sección 6).
 
 ## 6. Pendientes
