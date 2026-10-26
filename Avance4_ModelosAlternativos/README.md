@@ -4,7 +4,8 @@
 reentrenamiento de Endo-STTN con C3VDv2 y sirve de punto de partida para probar alternativas (otras máscaras de
 reflejos, otras configuraciones de entrenamiento).
 
-> **Aclaración:** _(pendiente: texto que enviará el equipo)_
+> **Aclaración:** este avance se hizo con apoyo de herramientas de IA. Su uso, la contribución de cada integrante
+> y las decisiones principales están en la [declaración de uso de IA](#7-declaración-de-uso-de-ia-y-contribución-del-equipo).
 
 ## 1. Contenido
 
@@ -74,3 +75,36 @@ Repetir la configuración de la corrida 4 con la máscara de Arnold
 con dos semillas (2020 y 2021), y evaluar contra los huecos de El Meslouhi para que la comparación sea justa. En
 ese notebook hay que pasar `--lr 1e-5 --semilla <N>` a `entrenar_endosttn.py` y fijar `DIVISION_MANUAL` con la
 división de la corrida 5.
+
+## 7. Declaración de uso de IA y contribución del equipo
+
+### Uso de herramientas de IA
+
+| Herramienta utilizada | Propósito de uso | Alcance del apoyo (celdas o secciones) | Responsabilidad: qué revisó o validó el equipo |
+|---|---|---|---|
+| Anthropic. (2026). Claude Code [Herramienta de inteligencia artificial generativa para programación].<br>https://claude.ai/code | Organizar la carpeta, comparar las corridas a partir de sus `resumen.md` y `config.json`, y redactar este README | Secciones 1 a 6 de este README; copia de los notebooks a `corrida_1/` … `corrida_5/` | _Por completar por el equipo_ (por ejemplo: se cotejaron las métricas de la tabla de la sección 3 contra los `resumen.md` de cada corrida) |
+
+### Contribución individual
+
+| Integrante | Contribución al avance |
+|---|---|
+| Javier Emmanuel García Escobedo | _Por completar_ |
+| Mario Raúl García Ramírez | _Por completar_ |
+| Juan Miguel Molina Reyes | _Por completar_ |
+
+### Decisiones principales
+
+<small><b>Decisión 1:</b> Dejar `c1_ascending_t3_v1` en entrenamiento y validar con `c2_sigmoid_t3_v2`</small>
+
+- <small>Justificación: con `c1_ascending` fuera del entrenamiento (corridas 1 y 3) el modelo reentrenado fue peor que el original en prueba; con él dentro (corridas 2, 4 y 5) fue mejor, con diferencias significativas.</small>
+- <small>Alternativa descartada y motivo: validar con `c1_ascending_t3_v1`, porque deja fuera el único video del colon c1 y el reentrenamiento empeora el relleno.</small>
+
+<small><b>Decisión 2:</b> Usar una tasa de aprendizaje de 1e-5 en lugar de 1e-4</small>
+
+- <small>Justificación: con 1e-5 la validación es estable entre checkpoints y la prueba mejora (32.52 dB contra 31.67 dB de PSNR, corrida 4 contra 2).</small>
+- <small>Alternativa descartada y motivo: 1e-4, la del entrenamiento original de Endo-STTN, porque al partir de pesos ya entrenados la validación oscila y el resultado en prueba es menor.</small>
+
+<small><b>Decisión 3:</b> Entrenar 2000 iteraciones y comprobar el resultado con una segunda semilla</small>
+
+- <small>Justificación: el mejor checkpoint aparece antes de las 2000 iteraciones y la corrida 5 (semilla 2021) reproduce casi igual la corrida 4 (32.43 contra 32.52 dB).</small>
+- <small>Alternativa descartada y motivo: entrenamientos largos (10 000 iteraciones en la corrida 1), porque la validación empeora casi sin parar desde la iteración 1000.</small>
