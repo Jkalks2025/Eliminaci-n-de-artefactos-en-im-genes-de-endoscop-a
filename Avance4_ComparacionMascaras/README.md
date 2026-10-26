@@ -2,7 +2,7 @@
 
 **Equipo 19** · Continúa el [Avance 3](../Avance3_ReEntrenar_Endo/README.md). Compara dos máscaras de reflejos
 para reentrenar Endo-STTN con C3VDv2: **El Meslouhi et al. (2011)**, la de los autores de Endo-STTN (corridas 1 a 5,
-Mario), y **Arnold et al. (2010)** (variantes A1 y A2, Juan).
+Mario), y **Arnold et al. (2010)** (variantes A1 a A3, Juan).
 
 > **Aclaración:** este avance se hizo con apoyo de herramientas de IA. Su uso, la contribución de cada integrante
 > y las decisiones principales están en la [declaración de uso de IA](#8-declaración-de-uso-de-ia-y-contribución-del-equipo).
@@ -14,6 +14,7 @@ máscaras dan un Endo-STTN que rellena mucho mejor que el modelo publicado (de 2
 queda **ligeramente por encima** de El Meslouhi con las dos semillas (+0.23 dB en promedio), pero la diferencia es del
 orden de la variación entre semillas, así que **las dos máscaras se consideran equivalentes** para reentrenar.
 Lo que sí cambia mucho el resultado es la configuración: qué videos entran al entrenamiento y la tasa de aprendizaje.
+Entrenar el doble (4000 iteraciones, variante A3) mejora la validación pero **no** la prueba: 2000 iteraciones bastan.
 
 | Prueba: `c2_descending_t4_v2` y `v3`, huecos de El Meslouhi | Responsable | PSNR (dB) ↑ | SSIM ↑ | MAE ↓ |
 |---|---|---|---|---|
@@ -22,15 +23,16 @@ Lo que sí cambia mucho el resultado es la configuración: qué videos entran al
 | El Meslouhi · corrida 5 (semilla 2021) | Mario | 32.43 | 0.876 | 4.37 |
 | **Arnold · A1 (semilla 2020)** | Juan | **32.74** | **0.880** | **4.18** |
 | **Arnold · A2 (semilla 2021)** | Juan | 32.67 | 0.879 | 4.25 |
+| Arnold · A3 (semilla 2020, 4000 iteraciones) | Juan | 32.26 | 0.876 | 4.53 |
 
-Las cuatro mejoran al original con Wilcoxon pareado por frame p < 10⁻³⁹.
+Todas mejoran al original con Wilcoxon pareado por frame p < 10⁻³⁹.
 
 ## 1. Contenido
 
 | Carpeta | Archivo | Qué es |
 |---|---|---|
 | `resultados/meslouhi/corrida_1/` … `corrida_5/` | `notebook_ejecutado.ipynb` | Corridas 1 a 5 con El Meslouhi (Mario), con sus salidas |
-| `resultados/arnold/A1/`, `A2/` | `Arnold_variacion_A?_Ejecutado.ipynb` | Variantes A1 y A2 con Arnold (Juan), con sus salidas |
+| `resultados/arnold/A1/`, `A2/`, `A3/` | `Arnold_variacion_A?_Ejecutado.ipynb` | Variantes A1, A2 y A3 con Arnold (Juan), con sus salidas |
 | `resultados/arnold/` | `Arnold_variaciones.ipynb` | Notebook de Colab para correr las variantes (A1, A2, A3), sin ejecutar |
 | `resultados/arnold/` | `Prueba_Entrenamiento_con_Arnold_Ejecutado.ipynb` | Primera prueba con Arnold del Avance 3 (lr 1e-4, otra división) |
 | `figuras/` | `*.png` | Figuras de este README, tomadas de los notebooks ejecutados |
@@ -78,21 +80,27 @@ Comprobación: con esos huecos, el modelo original da exactamente 29.51 dB en A1
 ## 4. Variantes con Arnold (Juan)
 
 Misma configuración que la corrida 4 (lr 1e-5, lote 4, 2000 iteraciones, un checkpoint cada 250) y misma división
-que la corrida 5, con la máscara de Arnold. GPU A100.
+que la corrida 5, con la máscara de Arnold. GPU A100. A2 cambia la semilla; A3 continúa el entrenamiento de A1 desde la
+iteración 2000 hasta la 4000 (sus checkpoints hasta la 2000 son los de A1).
 
 | Variante | Semilla | Elegido (huecos Arnold / El Meslouhi) | Huecos de Arnold: PSNR · SSIM · MAE | Huecos de El Meslouhi: PSNR · SSIM · MAE |
 |---|---|---|---|---|
 | Original | — | — | 29.09 · 0.841 · 6.88 | 29.51 · 0.826 · 6.66 |
 | **A1** | 2020 | iter. 1750 / 2000 | 32.46 · 0.908 · 3.97 | **32.74 · 0.880 · 4.18** |
 | **A2** | 2021 | iter. 2000 / 2000 | 32.28 · 0.907 · 4.04 | 32.67 · 0.879 · 4.25 |
+| A3 (4000 iteraciones) | 2020 | iter. 2500 / 2500 | 31.48 · 0.903 · 4.51 | 32.26 · 0.876 · 4.53 |
 
 1. **Arnold también mejora claramente al original**, con sus huecos (+3.2 a +3.4 dB) y con los de El Meslouhi
    (+3.2 dB).
 2. **Con los mismos huecos queda a la par de El Meslouhi**, un poco por encima: promedio de las dos semillas
    32.71 contra 32.47 dB de PSNR y 4.22 contra 4.34 de MAE.
 3. **El resultado se repite** con otra semilla (A1 contra A2: 32.74 contra 32.67 dB).
-4. **El mejor checkpoint es casi siempre el último** (iteración 2000): con lr 1e-5 quizá todavía no llega a su mejor
-   punto. Es lo que pregunta la variante A3 (sección 6).
+4. **Entrenar más no ayuda (A3).** En A1 y A2 el mejor checkpoint con huecos de El Meslouhi era el último (iteración 2000), así que A3 siguió
+   hasta la 4000. La validación sí mejora un poco (MAE con huecos de El Meslouhi: 1.88 en la iteración 2000, 1.79 en
+   la 2500, y oscila entre 1.79 y 1.89 hasta la 4000), pero el checkpoint que elige (iteración 2500) rellena **peor**
+   en prueba que el de A1: 32.26 contra 32.74 dB. Es decir, después de 2000 iteraciones el modelo se ajusta al video
+   de validación (`c2_sigmoid`, rosa y con 0.7 % de reflejos) y no generaliza mejor al de prueba (`c2_descending`,
+   naranja). Con un solo video de validación, elegir el checkpoint es ruidoso; 2000 iteraciones son suficientes.
 
 ## 5. Imágenes de referencia
 
@@ -112,6 +120,11 @@ Con los huecos de El Meslouhi, la validación de Arnold A1 (1.88 de MAE en la it
 (1.90 en la 1750) son prácticamente iguales. La de A2 está en
 [`figuras/validacion_arnold_A2.png`](figuras/validacion_arnold_A2.png).
 
+Arnold · A3 (Juan): la validación sigue bajando un poco después de la iteración 2000, pero la prueba no mejora
+(sección 4).
+
+![Validación A3](figuras/validacion_arnold_A3.png)
+
 **Relleno en un frame de prueba** (`c2_descending_t4_v2`, frame 85, zoom): hueco desplazado (se conoce la respuesta)
 y reflejo real, original contra reentrenado.
 
@@ -127,9 +140,8 @@ mismo frame (`relleno_A1.png`); falta correrla (ver sección 6).
 | Tarea | Responsable | Cómo |
 |---|---|---|
 | Figura de relleno de A1 y A2 en el frame 85 | Juan | En `Arnold_variaciones.ipynb`, poner `VARIANTE = "A1"` y `CORRER_PREPARAR`, `CORRER_ENTRENAR` y `CORRER_EVALUAR` en `False`, ejecutar todo y subir `relleno_A1.png` a `figuras/`. Igual con A2 |
-| Subir los resultados de A1 y A2 | Juan | Copiar `arnold_variaciones/A?/resultados/` de Drive (`resumen.md`, `prueba_por_frame.csv`, `comparacion.csv`) a `resultados/arnold/A?/` |
+| Subir los resultados de A1, A2 y A3 | Juan | Copiar `arnold_variaciones/A?/resultados/` de Drive (`resumen.md`, `prueba_por_frame.csv`, `comparacion.csv`) a `resultados/arnold/A?/` |
 | Prueba pareada Arnold contra El Meslouhi | Javier | Con los `prueba_por_frame.csv` (huecos de El Meslouhi) de A1 y de la corrida 4: Wilcoxon por frame para saber si la ventaja de Arnold es significativa |
-| Variante A3 | Juan | `VARIANTE = "A3"`: continúa A1 hasta 4000 iteraciones, para ver si entrenar más ayuda con lr 1e-5 |
 | Confirmar los videos de entrenamiento | Juan, Mario | Los ZIPs de entrenamiento de Juan traen sufijo (`-007`, `-002`, `-003`); comprobar que son los mismos videos que usó Mario (validación y prueba sí lo son: el original da los mismos números) |
 
 ## 7. Notas importantes
@@ -149,7 +161,7 @@ mismo frame (`relleno_A1.png`); falta correrla (ver sección 6).
 
 | Herramienta utilizada | Propósito de uso | Alcance del apoyo (celdas o secciones) | Responsabilidad: qué revisó o validó el equipo |
 |---|---|---|---|
-| Anthropic. (2026). Claude Code [Herramienta de inteligencia artificial generativa para programación].<br>https://claude.ai/code | Organizar la carpeta, comparar las corridas y variantes a partir de sus notebooks y `resumen.md`, escribir el notebook `Arnold_variaciones.ipynb` y la opción `--mascara-eval` de `evaluar_endosttn.py`, y redactar este README | Todo este README; `resultados/arnold/Arnold_variaciones.ipynb`; `Avance3_ReEntrenar_Endo/evaluar_endosttn.py`; figuras extraídas de los notebooks | Javier cotejó las métricas de las tablas contra los `resumen.md` de cada corrida. Juan ejecutó A1 y A2 en Colab; en ambas la comprobación del original con huecos de El Meslouhi (29.51 dB) salió correcta |
+| Anthropic. (2026). Claude Code [Herramienta de inteligencia artificial generativa para programación].<br>https://claude.ai/code | Organizar la carpeta, comparar las corridas y variantes a partir de sus notebooks y `resumen.md`, escribir el notebook `Arnold_variaciones.ipynb` y la opción `--mascara-eval` de `evaluar_endosttn.py`, y redactar este README | Todo este README; `resultados/arnold/Arnold_variaciones.ipynb`; `Avance3_ReEntrenar_Endo/evaluar_endosttn.py`; figuras extraídas de los notebooks | Javier cotejó las métricas de las tablas contra los `resumen.md` de cada corrida. Juan ejecutó A1, A2 y A3 en Colab; en las tres la comprobación del original con huecos de El Meslouhi (29.51 dB) salió correcta |
 
 ### Contribución individual
 
@@ -157,7 +169,7 @@ mismo frame (`relleno_A1.png`); falta correrla (ver sección 6).
 |---|---|
 | Javier Emmanuel García Escobedo | Estructuró la comparación entre máscaras y corridas (qué se compara y con qué criterios) y validó los resultados y las conclusiones. |
 | Mario Raúl García Ramírez | Ejecutó en Colab las corridas 1 a 5 con la máscara de El Meslouhi, variando la división, la tasa de aprendizaje, el lote, las iteraciones y la semilla, y analizó el efecto del color de los videos. |
-| Juan Miguel Molina Reyes | Probó la máscara de Arnold et al. (2010): la evaluó frente a El Meslouhi y ejecutó las variantes A1 y A2 con la configuración de la corrida 4. |
+| Juan Miguel Molina Reyes | Probó la máscara de Arnold et al. (2010): la evaluó frente a El Meslouhi y ejecutó las variantes A1, A2 y A3 con la configuración de la corrida 4. |
 
 ### Decisiones principales
 
@@ -181,6 +193,6 @@ mismo frame (`relleno_A1.png`); falta correrla (ver sección 6).
 
 <small><b>Decisión 4:</b> Entrenar 2000 iteraciones y repetir cada configuración con una segunda semilla</small>
 
-- <small>Responsables: Mario (corridas 4 y 5), Juan (A1 y A2), Javier (validó los resultados).</small>
+- <small>Responsables: Mario (corridas 4 y 5), Juan (A1, A2 y A3), Javier (validó los resultados).</small>
 - <small>Justificación: con dos semillas el resultado casi no cambia (32.52 y 32.43 dB con El Meslouhi; 32.74 y 32.67 dB con Arnold), así que las conclusiones no dependen del azar.</small>
-- <small>Alternativa descartada y motivo: entrenamientos largos con lr 1e-4 (9 000 iteraciones en la corrida 1), porque la validación empeora desde la iteración 1000. Con lr 1e-5 queda por probar si más iteraciones ayudan (variante A3).</small>
+- <small>Alternativa descartada y motivo: entrenamientos largos con lr 1e-4 (9 000 iteraciones en la corrida 1), porque la validación empeora desde la iteración 1000. Con lr 1e-5 tampoco ayudan: la variante A3 (4000 iteraciones) mejora la validación pero baja la prueba de 32.74 a 32.26 dB.</small>
