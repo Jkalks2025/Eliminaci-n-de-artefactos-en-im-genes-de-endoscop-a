@@ -1,6 +1,6 @@
 # Modelos finales
 
-**Equipo 19** · Modelos end-to-end del [Avance 5](../Avance5_EndtoEnd/README.md): Endo-STTN y AF-SfMLearner
+**Equipo 19** · Modelos end-to-end del [Avance 5](../README.md): Endo-STTN y AF-SfMLearner
 entrenados juntos (modelo **E**), uno por cada máscara de reflejos.
 
 | Modelo | Endo-STTN de partida | Máscara | Carpeta en Drive |
@@ -17,8 +17,8 @@ Cada carpeta es un **par**: las dos redes se entrenaron juntas y se usan juntas.
 | `historial.json` | Configuración del entrenamiento y métricas de validación por época | — |
 
 Los dos se entrenaron con la configuración del notebook
-[`Equipo19_EndToEnd_Mascaras_colab.ipynb`](../Avance5_EndtoEnd/notebooks/Equipo19_EndToEnd_Mascaras_colab.ipynb)
-(semilla 0, 15 épocas). Sus corridas ejecutadas están en `Avance5_EndtoEnd/notebooks/`.
+[`Equipo19_EndToEnd_Mascaras_colab.ipynb`](../notebooks/Equipo19_EndToEnd_Mascaras_colab.ipynb)
+(semilla 0, 15 épocas). Sus corridas ejecutadas están en [`../notebooks/`](../notebooks/).
 
 ## Por qué los pesos no están en git
 
