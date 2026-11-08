@@ -20,13 +20,17 @@ Los dos se entrenaron con la configuración del notebook
 [`Equipo19_EndToEnd_Mascaras_colab.ipynb`](../notebooks/Equipo19_EndToEnd_Mascaras_colab.ipynb)
 (semilla 0, 15 épocas). Sus corridas ejecutadas están en [`../notebooks/`](../notebooks/).
 
-## Por qué los pesos no están en git
+## Descarga
 
-Cada modelo pesa unos 122 MB. En git, cada versión quedaría para siempre en el historial y se descargaría en cada
-`git clone`, y el `.gitignore` del proyecto excluye los `*.pth`. Los pesos se guardan en Google Drive. Para
-compartirlos con alguien sin acceso a ese Drive, se pueden subir a la
-[carpeta compartida del Equipo 19](https://drive.google.com/drive/folders/1_L36tu2Q4mr1VXogK7a7M3bfcj9-bMU3) o
-adjuntar a un *Release* de GitHub.
+Los pesos de los dos modelos estarán disponibles en un **enlace público de Google Drive**:
+
+> *Enlace pendiente: se agregará aquí cuando los modelos estén publicados.*
+
+La carpeta pública tendrá una subcarpeta por modelo (`E_meslouhi_s0/` y `E_arnold_s0/`) con `sttn.pth`,
+`encoder.pth`, `depth.pth` e `historial.json`.
+
+Los pesos no se guardan en este repositorio: cada modelo pesa unos 122 MB, en git cada versión quedaría para siempre
+en el historial y se descargaría en cada `git clone`, y el `.gitignore` del proyecto excluye los `*.pth`.
 
 ## Cómo usarlos en un video de C3VDv2
 
