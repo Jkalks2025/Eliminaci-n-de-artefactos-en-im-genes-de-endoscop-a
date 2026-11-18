@@ -3,7 +3,7 @@
 **Equipo 19** · Javier Emmanuel García Escobedo, Mario Raúl García Ramírez y Juan Miguel Molina Reyes
 · Proyecto Integrador, Maestría en Inteligencia Artificial Aplicada · Asesor: Gerardo Jesús Camacho González
 
-> **Artículo completo:** [`Articulo/Articulo_Equipo19.pdf`](Articulo/Articulo_Equipo19.pdf)
+> **Artículo completo:** [*Entrenamiento conjunto de inpainting de reflejos y estimación de profundidad en colonoscopía*](Articulo/Entrenamiento%20conjunto%20de%20inpainting%20de%20reflejos%20y%20estimacion%20de%20profundidad%20en%20colonoscopia.pdf) (PDF)
 
 ## Qué hace este proyecto
 
