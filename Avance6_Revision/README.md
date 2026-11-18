@@ -56,6 +56,33 @@ ese modelo y lo indica en la salida.
 | `profundidad_por_frame.csv`, `profundidad_ic95.csv`, `diferencias_ic95.csv`, `profundidad_ic95.png` | Notas 1 y 5 |
 | `tabla_profundidad_ic95.tex` | Tabla con IC 95 % lista para el artículo |
 
+## Prueba adicional: punto de partida del estimador
+
+Todos nuestros modelos parten de los pesos oficiales de **AF-SfMLearner entrenado en SCARED**. Para saber si ese punto
+de partida influye, se revisaron los pesos de un trabajo anterior: eran métodos publicados entrenados en SCARED. Solo
+**Monodepth2** es compatible con nuestro código (mismo codificador ResNet-18 y decodificador); sus pesos de
+AF-SfMLearner eran idénticos a los nuestros (MD5), y MonoViT, EndoDAC y Endo-SfMLearner usan otras arquitecturas.
+
+El notebook [`notebooks/Equipo19_PesosEquipoAnterior_colab.ipynb`](notebooks/Equipo19_PesosEquipoAnterior_colab.ipynb)
+entrena C, D y E exactamente igual que en el Avance 5, pero partiendo de Monodepth2, y los evalúa en la misma prueba.
+
+AbsRel en prueba (semilla 0; menor es mejor). Cada celda: imagen completa / reflejos.
+
+| Modelo | AF-SfMLearner (original) | Monodepth2 (trabajo anterior) | Mejor en imagen completa | Mejor en reflejos |
+|---|---|---|---|---|
+| A · sin ajustar | 0.396 / 0.814 | 0.460 / 0.986 | Original | Original |
+| C · sin limpiar | 0.123 / 0.074 | 0.116 / 0.144 | Monodepth2 | Original |
+| D · por etapas | 0.122 / 0.081 | **0.102** / 0.107 | Monodepth2 | Original |
+| E · conjunto | **0.112** / 0.078 | 0.119 / 0.134 | Empate | Original |
+
+Con los pesos originales, E mejora a D (−0.010, IC 95 % [−0.011, −0.009]). Con Monodepth2 se invierte: D mejora a E
+(+0.017, IC 95 % [0.012, 0.019]). Dentro de los reflejos, los pesos originales son mejores en todos los modelos. Es
+decir, el punto de partida del estimador influye tanto como el método, y la ventaja del entrenamiento conjunto
+depende de partir de AF-SfMLearner. Son resultados preliminares con una sola semilla; para confirmarlos hay que
+correr `SEMILLAS = [0, 1, 2]`.
+
+Las salidas se guardan en `MyDrive/Equipo19/pesos_equipo_anterior_pruebas/` y no modifican nada del Avance 5.
+
 ## Limitación
 
 Los intervalos describen la incertidumbre **dentro del segmento de prueba** (`c2_descending_t4`, dos videos). El
