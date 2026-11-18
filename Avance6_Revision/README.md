@@ -3,9 +3,10 @@
 **Equipo 19** · Atiende las notas de la revisión con el profesor sobre el código final del
 [Avance 5](../Avance5_EndtoEnd/README.md).
 
-> **Estado:** notebook listo y probado de punta a punta solo con datos sintéticos y modelos de prueba, incluido un
-> caso con fuga de datos a propósito para comprobar que la auditoría la detecta. Falta correrlo en Colab con los datos
-> y modelos reales.
+> **Estado:** ejecutado en Colab con los datos y modelos reales. El notebook con sus salidas está en
+> [`notebooks/Equipo19_Avance6_Revision_colab_ejecutado.ipynb`](notebooks/Equipo19_Avance6_Revision_colab_ejecutado.ipynb).
+> Antes se probó de punta a punta con datos sintéticos, incluido un caso con fuga de datos a propósito para comprobar
+> que la auditoría la detecta.
 
 ## Notas de la revisión y cómo se atienden
 
@@ -43,8 +44,8 @@ En Colab Pro (A100 o L4, RAM alta):
 - `CONTROLES`: las carpetas de los controles con ancla y con Endo-STTN congelado.
 - `PESOS_ENDO`: los Endo-STTN del Avance 4.
 
-La corrida 4 de El Meslouhi no guardó `config.json`, así que la auditoría usa la división documentada del Avance 4 para
-ese modelo y lo indica en la salida.
+La auditoría lee la división de cada Endo-STTN del `config.json` guardado junto a sus pesos. Si no existe, usa la
+división documentada del Avance 4 y lo indica en la salida.
 
 ## Salidas (`MyDrive/Equipo19/avance6_revision/resultados/`)
 
