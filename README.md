@@ -51,7 +51,6 @@ Cada carpeta de avance tiene su propio README con el detalle, los notebooks y lo
 | [`Avance6_EvaluarVideo`](Avance6_EvaluarVideo/README.md) | Aplicar el modelo E a cualquier video de C3VDv2 | Uso del modelo |
 | [`Avance6_Revision`](Avance6_Revision/README.md) | Pruebas pedidas en la revisión: fuga de datos, estimador solo, Endo-STTN solo, IC 95 % y punto de partida del estimador | **Validación** |
 | [`SAM_prueba`](SAM_prueba/README.md) | ¿Segment Anything detecta mejor los reflejos? | Exploración |
-| [`Entrenamiento_end_to_end`](Entrenamiento_end_to_end/README.md) | Primer diseño del entrenamiento conjunto, solo con datos sintéticos | Reemplazado por el Avance 5 |
 
 Otras carpetas en la raíz:
 
