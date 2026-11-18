@@ -1,7 +1,7 @@
 # Re-entrenamiento de Endo-STTN con C3VDv2 · Corridas con máscara El Meslouhi
 
 > Análisis de las corridas 1 a 5 (Mario), parte del [Avance 4](README.md). Antes era el README principal del
-> repositorio. Las carpetas de cada corrida están en la raíz: [`corrida_1/`](../corrida_1/) … [`corrida_5/`](../corrida_5/).
+> repositorio. Las carpetas de cada corrida están en [`resultados/meslouhi/`](resultados/meslouhi/).
 
 **Resultado principal.** El Endo-STTN re-entrenado con C3VDv2 rellena mejor que el modelo publicado (`gen_00009.pth`)
 **solo si el entrenamiento incluye tejido del mismo color que el video de prueba**. La mejor configuración
@@ -37,15 +37,15 @@ corrida 5, 248 de 250 (corridas 2 y 4: ver `notebook_ejecutado.ipynb`).
 3. **El resultado se reproduce.** Repetir la corrida 4 con otra semilla (corrida 5) da PSNR 32.43 vs 32.52 y
    MAE 4.37 vs 4.30.
 
-![Color promedio de los videos de entrenamiento, validación y prueba](../figuras/color_entrenamiento_vs_prueba.png)
+![Color promedio de los videos de entrenamiento, validación y prueba](figuras/color_entrenamiento_vs_prueba.png)
 
 | Corrida | Relleno en un frame de prueba (c2_descending_t4_v2, frame 85) |
 |---|---|
-| 1 (solo rosa) | ![](../figuras/relleno_corrida1.png) |
-| 3 (solo rosa) | ![](../figuras/relleno_corrida3.png) |
-| 2 (balanceada, LR 1e-4) | ![](../figuras/relleno_corrida2.png) |
-| 4 (balanceada, LR 1e-5) | ![](../figuras/relleno_corrida4.png) |
-| 5 (balanceada, LR 1e-5, semilla 2021) | ![](../figuras/relleno_corrida5.png) |
+| 1 (solo rosa) | ![](figuras/relleno_corrida1.png) |
+| 3 (solo rosa) | ![](figuras/relleno_corrida3.png) |
+| 2 (balanceada, LR 1e-4) | ![](figuras/relleno_corrida2.png) |
+| 4 (balanceada, LR 1e-5) | ![](figuras/relleno_corrida4.png) |
+| 5 (balanceada, LR 1e-5, semilla 2021) | ![](figuras/relleno_corrida5.png) |
 
 ## Configuración común
 
