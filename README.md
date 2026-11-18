@@ -3,6 +3,8 @@
 **Equipo 19** · Javier Emmanuel García Escobedo, Mario Raúl García Ramírez y Juan Miguel Molina Reyes
 · Proyecto Integrador, Maestría en Inteligencia Artificial Aplicada · Asesor: Gerardo Jesús Camacho González
 
+> **Artículo completo:** [`Articulo/Articulo_Equipo19.pdf`](Articulo/Articulo_Equipo19.pdf)
+
 ## Qué hace este proyecto
 
 Los reflejos especulares del video de colonoscopía ocultan tejido y confunden a los modelos que estiman la forma 3D
