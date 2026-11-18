@@ -8,7 +8,7 @@
 | B      | AF-SfMLearner (SCARED)        | limpios          |
 | C      | ajustado con frames originales| originales       |
 | D      | ajustado con frames limpios   | limpios          |
-| E      | Endo-STTN + estimador ajustados juntos (Entrenamiento_end_to_end/ajustar_conjunto.py) | limpios por su Endo-STTN |
+| E      | Endo-STTN + estimador ajustados juntos (se omite si no existe; el modelo E final está en Avance5_EndtoEnd) | limpios por su Endo-STTN |
 
 Mide en videos de prueba (no usados para entrenar), en tres regiones: toda la imagen, dentro de
 los reflejos y un anillo de 10 px alrededor. Guarda en Avance2_DeepEstimator_EndoSTTN/resultados/:
