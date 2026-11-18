@@ -1,108 +1,92 @@
-# Re-entrenamiento de Endo-STTN con C3VDv2 · Corridas con máscara El Meslouhi
+# Eliminación de reflejos especulares para mejorar la estimación de profundidad en colonoscopía
 
-**Resultado principal.** El Endo-STTN re-entrenado con C3VDv2 rellena mejor que el modelo publicado (`gen_00009.pth`)
-**solo si el entrenamiento incluye tejido del mismo color que el video de prueba**. La mejor configuración
-(división balanceada en color + tasa de aprendizaje 1e-5) baja el MAE de prueba de **6.66 a 4.30** (corrida 4) y
-se reproduce con otra semilla (corrida 5: **4.37**). Con datos de entrenamiento de un solo color, el re-entrenado
-rellena peor que el original (corridas 1 y 3).
+**Equipo 19** · Javier Emmanuel García Escobedo, Mario Raúl García Ramírez y Juan Miguel Molina Reyes
+· Proyecto Integrador, Maestría en Inteligencia Artificial Aplicada · Asesor: Gerardo Jesús Camacho González
 
-## Resultados en prueba
+## Qué hace este proyecto
 
-Mismo conjunto de prueba en todas las corridas: `c2_descending_t4_v2` y `c2_descending_t4_v3` (250 frames medibles;
-el v3 tiene residuos). Métricas dentro del hueco desplazado (*pseudo ground truth*), igual que `quantifyResults.ipynb`
-de Endo-STTN. Wilcoxon pareado por frame contra el original (H1: el re-entrenado es mejor).
+Los reflejos especulares del video de colonoscopía ocultan tejido y confunden a los modelos que estiman la forma 3D
+del colon con una sola cámara. Este proyecto elimina los reflejos con ***inpainting* temporal (Endo-STTN)** y estima
+la profundidad con **AF-SfMLearner**, usando videos de fantomas de colon con profundidad de referencia
+(**C3VDv2**, Johns Hopkins).
 
-| Corrida | Entrenamiento | LR | Lote / GPU | Iteraciones | Semilla | Checkpoint elegido | PSNR (dB) ↑ | SSIM ↑ | MAE ↓ | ¿Mejora al original? |
-|---|---|---|---|---|---|---|---|---|---|---|
-| Original (`gen_00009.pth`) | HyperKvasir (autores) | — | — | — | — | — | 29.51 | 0.826 | 6.66 | Referencia |
-| **4** | Balanceado | 1e-5 | 4 / L4 | 2,000 | 2020 | 1,750 | **32.52** | **0.879** | **4.30** | Sí (p < 10⁻³⁹) |
-| **5** | Balanceado | 1e-5 | 4 / L4 | 2,000 | 2021 | 2,000 | 32.43 | 0.876 | 4.37 | Sí (p < 10⁻³⁹) |
-| 2 | Balanceado | 1e-4 | 4 / L4 | 4,000 | 2020 | 750 | 31.67 | 0.872 | 4.75 | Sí (p < 10⁻²⁶) |
-| 1 | Solo rosa | 1e-4 | 2 / T4 | 9,000 | 2020 | 1,000 | 27.18 | 0.808 | 8.68 | No (p = 1) |
-| 3 | Solo rosa | 1e-4 | 4 / L4 | 2,000 | 2020 | 1,250 | 26.67 | 0.802 | 8.71 | No (p = 1) |
+El modelo final (**E**) entrena las dos redes **juntas** (*end-to-end*): el error de profundidad también ajusta el
+relleno de Endo-STTN, solo a través de los píxeles de reflejo.
 
-Frames de prueba donde el re-entrenado tiene menor MAE que el original: corrida 1, 34 de 250; corrida 3, 3 de 250;
-corrida 5, 248 de 250 (corridas 2 y 4: ver `notebook_ejecutado.ipynb`).
+![Arquitectura del modelo E](Avance5_EndtoEnd/figuras/arquitectura_E.png)
 
-## Qué muestran las corridas
+## Resultado principal
 
-1. **El color de los datos de entrenamiento es el factor decisivo.** Las corridas 2 y 3 usan el mismo lote, GPU,
-   tasa de aprendizaje y semilla; solo cambia la división. Con un video naranja en entrenamiento (corrida 2) el
-   re-entrenado mejora al original; sin él (corrida 3) empeora y rellena con tonos rosados sobre tejido naranja.
-2. **Un ajuste más suave es mejor y más estable.** Con LR 1e-5 (corrida 4) todos los checkpoints quedan entre
-   1.90 y 1.97 de MAE en validación, contra 2.09–2.83 con LR 1e-4 (corrida 2), en el mismo video de validación.
-3. **El resultado se reproduce.** Repetir la corrida 4 con otra semilla (corrida 5) da PSNR 32.43 vs 32.52 y
-   MAE 4.37 vs 4.30.
+Error de profundidad en prueba (`c2_descending_t4` v2 y v3, videos que ningún modelo vio). Media de 3 semillas con
+intervalo de confianza del 95 % por *bootstrap* de bloques; menor es mejor, salvo δ.
 
-![Color promedio de los videos de entrenamiento, validación y prueba](figuras/color_entrenamiento_vs_prueba.png)
+| Modelo | Qué es | AbsRel | RMSE (mm) | δ < 1.25 |
+|---|---|---|---|---|
+| A | AF-SfMLearner (SCARED), sin ajustar | 0.396 [0.376, 0.409] | 18.38 | 0.388 |
+| C | Ajustado con frames originales (sin limpiar) | 0.126 [0.112, 0.134] | 7.86 | 0.805 |
+| D | Endo-STTN reentrenado y congelado; ajustado con frames limpios (por etapas) | 0.122 [0.108, 0.130] | 7.53 | 0.814 |
+| **E** | **Endo-STTN y estimador entrenados juntos (máscara El Meslouhi)** | **0.116** [0.104, 0.124] | **6.75** | **0.832** |
 
-| Corrida | Relleno en un frame de prueba (c2_descending_t4_v2, frame 85) |
+- **E mejora a D** en la imagen completa: −0.005 de AbsRel, IC 95 % [−0.006, −0.004].
+- **La mejora requiere que Endo-STTN siga aprendiendo:** con Endo-STTN congelado dentro del mismo ciclo, el error
+  vuelve a 0.125.
+- **No viene de un relleno visualmente mejor:** el relleno de E es igual al del Endo-STTN congelado.
+- **Limitaciones:** dentro de los reflejos, ningún modelo con limpieza mejora todavía al estimador sin limpiar (C);
+  la prueba es un solo segmento anatómico; y la ventaja de E depende del punto de partida del estimador
+  ([prueba con Monodepth2](Avance6_Revision/README.md#prueba-adicional-punto-de-partida-del-estimador)).
+
+## Mapa del repositorio
+
+Cada carpeta de avance tiene su propio README con el detalle, los notebooks y los resultados.
+
+| Carpeta | Qué se hizo | Estado |
+|---|---|---|
+| [`Avance1_ExploracionDatos`](Avance1_ExploracionDatos/) | Exploración de C3VDv2: formato, reflejos, residuos y redundancia entre frames | Histórico |
+| [`Avance2_DeepEstimator_EndoSTTN`](Avance2_DeepEstimator_EndoSTTN/README.md) | Primer pipeline por etapas: Endo-STTN publicado limpia los frames y se ajusta AF-SfMLearner (modelos A–D) | Histórico |
+| [`Avance3_ReEntrenar_Endo`](Avance3_ReEntrenar_Endo/README.md) | Reentrenamiento de Endo-STTN con C3VDv2 | Histórico |
+| [`Avance4_ComparacionMascaras`](Avance4_ComparacionMascaras/README.md) | Máscaras El Meslouhi y Arnold; mejor configuración de Endo-STTN (corridas 1–5, A1–A3) | Base del modelo final |
+| [`Avance5_EndtoEnd`](Avance5_EndtoEnd/README.md) | **Entrenamiento conjunto (modelo E)** con las dos máscaras y 3 semillas | **Modelo final** |
+| [`Avance6_EvaluarVideo`](Avance6_EvaluarVideo/README.md) | Aplicar el modelo E a cualquier video de C3VDv2 | Uso del modelo |
+| [`Avance6_Revision`](Avance6_Revision/README.md) | Pruebas pedidas en la revisión: fuga de datos, estimador solo, Endo-STTN solo, IC 95 % y punto de partida del estimador | **Validación** |
+| [`SAM_prueba`](SAM_prueba/README.md) | ¿Segment Anything detecta mejor los reflejos? | Exploración |
+| [`Entrenamiento_end_to_end`](Entrenamiento_end_to_end/README.md) | Primer diseño del entrenamiento conjunto, solo con datos sintéticos | Reemplazado por el Avance 5 |
+
+Otras carpetas en la raíz:
+
+| Carpeta | Contenido |
 |---|---|
-| 1 (solo rosa) | ![](figuras/relleno_corrida1.png) |
-| 3 (solo rosa) | ![](figuras/relleno_corrida3.png) |
-| 2 (balanceada, LR 1e-4) | ![](figuras/relleno_corrida2.png) |
-| 4 (balanceada, LR 1e-5) | ![](figuras/relleno_corrida4.png) |
-| 5 (balanceada, LR 1e-5, semilla 2021) | ![](figuras/relleno_corrida5.png) |
+| `codigo/`, `preparar_entorno.py`, `requirements.txt` | Scripts del pipeline por etapas del Avance 2 |
+| `corrida_1/` … `corrida_5/`, `figuras/` | Corridas de reentrenamiento de Endo-STTN con El Meslouhi; su análisis está en [`Avance4_ComparacionMascaras/README_corridas_meslouhi.md`](Avance4_ComparacionMascaras/README_corridas_meslouhi.md) |
+| `Endo-STTN/` | Copia del repositorio original de Endo-STTN (Daher et al., 2023), código de terceros con su propia licencia |
+| `datos/raw/` | Lugar para los ZIP de C3VDv2 si se trabaja en local (no se suben al repositorio) |
 
-## Configuración común
+## Cómo correrlo
 
-- Notebook: `Avance3_ReEntrenar_Endo/notebooks/Equipo19_Avance3_ReEntrenar_Endo_colab.ipynb`, con el entrenamiento
-  original de Endo-STTN (`core/trainer.py`) sin modificar.
-- Punto de partida: generador `gen_00009.pth`; discriminador desde cero (el modelo publicado no lo incluye).
-- Máscara de reflejos: El Meslouhi (2011), dilatada 1 px (`MASCARA = "meslouhi"`).
-- Clips de 5 frames a 288 × 288; pérdidas L1 en el hueco + L1 fuera del hueco + adversarial (peso 0.01); Adam,
-  betas (0, 0.99).
-- Para pasar la tasa de aprendizaje y la semilla se agregaron `LR` y `SEMILLA` a la celda de configuración y
-  `"--lr", LR, "--semilla", SEMILLA` a la celda de entrenamiento (opciones ya existentes de `entrenar_endosttn.py`).
+Todo se ejecuta en **Google Colab** (A100 o L4, RAM alta). Los datos de C3VDv2 y los pesos se leen de Google Drive,
+no se suben al repositorio.
 
-**Divisiones de datos**
-
-| División | Entrenamiento | Validación | Prueba |
-|---|---|---|---|
-| Automática por segmento (solo rosa) · corridas 1 y 3 | c2_cecum_t1_v1, c2_rectum_t1_v1, c2_sigmoid_t3_v2, c2_transverse1_t1_v1 | c1_ascending_t3_v1 | c2_descending_t4_v2, c2_descending_t4_v3 |
-| Balanceada · corridas 2, 4 y 5 | c2_cecum_t1_v1, c2_rectum_t1_v1, c2_transverse1_t1_v1, c1_ascending_t3_v1 | c2_sigmoid_t3_v2 | c2_descending_t4_v2, c2_descending_t4_v3 |
-
-La división balanceada se fija con:
-
-```python
-DIVISION_MANUAL = {"entrenamiento": ["c2_cecum_t1_v1", "c2_rectum_t1_v1", "c2_transverse1_t1_v1", "c1_ascending_t3_v1"],
-                   "validacion": ["c2_sigmoid_t3_v2"],
-                   "prueba": ["c2_descending_t4_v2", "c2_descending_t4_v3"]}
-```
-
-## Limitaciones
-
-- **Un solo segmento de prueba** (c2_descending_t4). Como se usó para comparar corridas, la configuración ganadora
-  debe confirmarse en un video naranja nuevo que no se haya usado en ninguna corrida.
-- **Validación pequeña en la división balanceada:** c2_sigmoid_t3_v2 casi no tiene reflejos; solo 53 de 225 frames
-  tienen un hueco medible.
-- **La métrica mide tejido sano:** el hueco desplazado cae sobre tejido sin reflejo; debajo de un reflejo real el
-  tejido puede ser distinto.
-- **Las validaciones no son comparables entre divisiones** (cambia el video); la comparación entre corridas se hace
-  en prueba.
-- **Comparación con otros métodos de máscara:** el hueco de evaluación se construye desplazando la máscara del
-  propio método, así que estos números no se comparan directamente con corridas que usan otra máscara (por ejemplo,
-  Arnold). Para una comparación justa hay que evaluar ambos modelos sobre los mismos huecos y la misma división.
-
-## Contenido de cada carpeta
-
-| Archivo | Contenido |
+| Quiero… | Notebook |
 |---|---|
-| `resumen.md` | Configuración, resultados en prueba, Wilcoxon y validación por checkpoint (salida de `evaluar_endosttn.py`) |
-| `validacion_por_checkpoint.csv` | PSNR, SSIM y MAE en validación del original y de cada checkpoint |
-| `prueba_por_frame.csv` | PSNR, SSIM y MAE de cada frame de prueba, por modelo |
-| `config.json` | Configuración exacta del entrenamiento (GPU, fecha, lote, LR, semilla, división) |
-| `mejor.json` | Checkpoint elegido por validación |
-| `revision_mascaras.png` | 50 frames de entrenamiento al azar con su máscara |
-| `notebook_ejecutado.ipynb` | Notebook de Colab con todas las salidas y figuras |
+| Entrenar los modelos C, D y E | [`Avance5_EndtoEnd/notebooks/Equipo19_EndToEnd_Mascaras_colab.ipynb`](Avance5_EndtoEnd/notebooks/Equipo19_EndToEnd_Mascaras_colab.ipynb) |
+| Aplicar el modelo E a un video | [`Avance6_EvaluarVideo/notebooks/Equipo19_Avance6_Evaluar_Video_colab.ipynb`](Avance6_EvaluarVideo/notebooks/Equipo19_Avance6_Evaluar_Video_colab.ipynb) |
+| Reproducir las pruebas de validación y los IC 95 % | [`Avance6_Revision/notebooks/Equipo19_Avance6_Revision_colab.ipynb`](Avance6_Revision/notebooks/Equipo19_Avance6_Revision_colab.ipynb) |
 
-En las corridas 2 y 4, `resumen.md` se tomó de la salida del notebook ejecutado; sus archivos CSV y JSON están en
-Google Drive. Los modelos (`gen_mejor.pth`, unos 66 MB) no se suben al repositorio; quedan en Google Drive, en la
-carpeta de cada corrida (`modelos/gen_mejor.pth`).
+Los pesos de los modelos finales se describen en
+[`Avance5_EndtoEnd/Modelos Finales`](Avance5_EndtoEnd/Modelos%20Finales/README.md).
 
-## Siguientes pasos
+El pipeline por etapas del Avance 2 también se puede correr en local: `python preparar_entorno.py`, después los
+scripts de `codigo/` en orden; ver el [README del Avance 2](Avance2_DeepEstimator_EndoSTTN/README.md#8-cómo-reproducir).
 
-1. Confirmar la configuración de la corrida 4 en un video naranja nuevo, no usado en ninguna corrida.
-2. Comparar contra las corridas con máscara Arnold sobre los mismos huecos de evaluación.
-3. Limpiar los frames con el `gen_mejor.pth` de la corrida 4 y ajustar el estimador de profundidad, para medir si
-   el mejor relleno también mejora la profundidad respecto al modelo D del Avance 2.
+## Referencias principales
+
+- Daher, R., Vasconcelos, F. y Stoyanov, D. (2023). A temporal learning approach to inpainting endoscopic
+  specularities and its effect on image correspondence. *Medical Image Analysis*, 90, 102994. (Endo-STTN)
+- Shao, S. et al. (2022). Self-supervised monocular depth and ego-motion estimation in endoscopy: Appearance flow to
+  the rescue. *Medical Image Analysis*, 77, 102338. (AF-SfMLearner)
+- Golhar, M. V. et al. (2026). C3VDv2 – Colonoscopy 3D video dataset with enhanced realism. *Scientific Data*, 13,
+  1273.
+
+---
+
+*Este proyecto se elaboró con apoyo de Claude (Anthropic) para código y documentación. Los integrantes ejecutaron los
+experimentos, verificaron las cifras y son responsables del contenido.*

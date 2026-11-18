@@ -2,8 +2,9 @@
 
 **Equipo 19** · Exploración a partir del [Avance 2](../Avance2_DeepEstimator_EndoSTTN/README.md)
 
-> **Estado:** implementado y probado de punta a punta con datos sintéticos (`python codigo/prueba_rapida.py`).
-> Falta correrlo con C3VDv2 en GPU.
+> **Estado: versión exploratoria, reemplazada.** Primer diseño del entrenamiento conjunto, probado solo con datos
+> sintéticos. La versión que se entrenó con C3VDv2 y se reporta en el artículo está en el
+> [Avance 5](../Avance5_EndtoEnd/README.md).
 
 ## 1. Idea
 

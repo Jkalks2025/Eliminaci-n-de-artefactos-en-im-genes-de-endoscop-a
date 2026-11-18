@@ -38,8 +38,8 @@ Todas mejoran al original con Wilcoxon pareado por frame p < 10⁻³⁹.
 | `figuras/` | `*.png` | Figuras de este README, tomadas de los notebooks ejecutados |
 
 Los notebooks de El Meslouhi son copias de las carpetas `corrida_1/` … `corrida_5/` de la raíz del repositorio, donde
-están también sus resúmenes, configuraciones, métricas por frame y figuras, y el análisis de Mario en el
-[README principal](../README.md). La prueba con Arnold del Avance 3 se conserva también en
+están también sus resúmenes, configuraciones, métricas por frame y figuras. El análisis de Mario está en
+[`README_corridas_meslouhi.md`](README_corridas_meslouhi.md). La prueba con Arnold del Avance 3 se conserva también en
 `Avance3_ReEntrenar_Endo/resultados/`.
 
 ## 2. Cómo se compararon
