@@ -66,6 +66,8 @@ AF-SfMLearner eran idénticos a los nuestros (MD5), y MonoViT, EndoDAC y Endo-Sf
 
 El notebook [`notebooks/Equipo19_PesosEquipoAnterior_colab.ipynb`](notebooks/Equipo19_PesosEquipoAnterior_colab.ipynb)
 entrena C, D y E exactamente igual que en el Avance 5, pero partiendo de Monodepth2, y los evalúa en la misma prueba.
+Los resultados de abajo salen de su ejecución en Colab:
+[`notebooks/Equipo19_PesosEquipoAnterior_colab_ejecutado.ipynb`](notebooks/Equipo19_PesosEquipoAnterior_colab_ejecutado.ipynb).
 
 AbsRel en prueba (semilla 0; menor es mejor). Cada celda: imagen completa / reflejos.
 
