@@ -58,7 +58,6 @@ Otras carpetas en la raíz:
 | Carpeta | Contenido |
 |---|---|
 | `codigo/`, `preparar_entorno.py`, `requirements.txt` | Scripts del pipeline por etapas del Avance 2 |
-| `corrida_1/` … `corrida_5/`, `figuras/` | Corridas de reentrenamiento de Endo-STTN con El Meslouhi; su análisis está en [`Avance4_ComparacionMascaras/README_corridas_meslouhi.md`](Avance4_ComparacionMascaras/README_corridas_meslouhi.md) |
 | `Endo-STTN/` | Copia del repositorio original de Endo-STTN (Daher et al., 2023), código de terceros con su propia licencia |
 | `datos/raw/` | Lugar para los ZIP de C3VDv2 si se trabaja en local (no se suben al repositorio) |
 

@@ -31,15 +31,13 @@ Todas mejoran al original con Wilcoxon pareado por frame p < 10⁻³⁹.
 
 | Carpeta | Archivo | Qué es |
 |---|---|---|
-| `resultados/meslouhi/corrida_1/` … `corrida_5/` | `notebook_ejecutado.ipynb` | Corridas 1 a 5 con El Meslouhi (Mario), con sus salidas |
+| `resultados/meslouhi/corrida_1/` … `corrida_5/` | `notebook_ejecutado.ipynb`, `resumen.md`, `config.json`, `mejor.json`, `*.csv`, `revision_mascaras.png` | Corridas 1 a 5 con El Meslouhi (Mario): notebook con sus salidas, resumen, configuración y métricas por frame (los JSON y CSV solo en las corridas 1, 3 y 5) |
 | `resultados/arnold/A1/`, `A2/`, `A3/` | `Arnold_variacion_A?_Ejecutado.ipynb` | Variantes A1, A2 y A3 con Arnold (Juan), con sus salidas |
 | `resultados/arnold/` | `Arnold_variaciones.ipynb` | Notebook de Colab para correr las variantes (A1, A2, A3), sin ejecutar |
 | `resultados/arnold/` | `Prueba_Entrenamiento_con_Arnold_Ejecutado.ipynb` | Primera prueba con Arnold del Avance 3 (lr 1e-4, otra división) |
 | `figuras/` | `*.png` | Figuras de este README, tomadas de los notebooks ejecutados |
 
-Los notebooks de El Meslouhi son copias de las carpetas `corrida_1/` … `corrida_5/` de la raíz del repositorio, donde
-están también sus resúmenes, configuraciones, métricas por frame y figuras. El análisis de Mario está en
-[`README_corridas_meslouhi.md`](README_corridas_meslouhi.md). La prueba con Arnold del Avance 3 se conserva también en
+El análisis de Mario de las corridas con El Meslouhi está en [`README_corridas_meslouhi.md`](README_corridas_meslouhi.md). La prueba con Arnold del Avance 3 se conserva también en
 `Avance3_ReEntrenar_Endo/resultados/`.
 
 ## 2. Cómo se compararon
@@ -72,7 +70,7 @@ Comprobación: con esos huecos, el modelo original da exactamente 29.51 dB en A1
 
 1. **El color del entrenamiento es lo que más pesa.** Sin el video naranja (corridas 1 y 3) el reentrenado es
    **peor** que el original (p = 1) y rellena con tonos rosados sobre tejido naranja; con él (2, 4 y 5) es
-   **mejor** (p < 10⁻²⁶). Ver la [figura de color](../figuras/color_entrenamiento_vs_prueba.png).
+   **mejor** (p < 10⁻²⁶). Ver la [figura de color](figuras/color_entrenamiento_vs_prueba.png).
 2. **lr 1e-5 es mejor que 1e-4** (corrida 4 contra 2): validación estable entre checkpoints y mejor prueba.
 3. **El resultado se repite** con otra semilla (corrida 5: 32.43 contra 32.52 dB).
 4. **Entrenar más no ayuda con lr 1e-4** (corrida 1): la validación empeora casi sin parar desde la iteración 1000.
@@ -130,7 +128,7 @@ y reflejo real, original contra reentrenado.
 
 El Meslouhi · corrida 4:
 
-![Relleno corrida 4](../figuras/relleno_corrida4.png)
+![Relleno corrida 4](figuras/relleno_corrida4.png)
 
 Arnold · A1: *pendiente.* El notebook `Arnold_variaciones.ipynb` ya tiene la celda que genera esta figura en el
 mismo frame (`relleno_A1.png`); falta correrla (ver sección 6).
